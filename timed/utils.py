@@ -78,7 +78,7 @@ class InputFormatter:
                 return f'{type(x).__name__}{x.shape}'
 
             if isinstance(x, Tensor):
-                return f'{type(x).__name__}{str(x.shape).lstrip("torch.Size(").rstrip(")")}'
+                return f'{x.device.type.capitalize()}{type(x).__name__}{str(x.shape).lstrip("torch.Size(").rstrip(")")}'
 
             if isinstance(x, (str, int, float, bool)):
                 return str(x)
