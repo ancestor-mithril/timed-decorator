@@ -49,6 +49,7 @@ batched_euclidean_distance(CudaTensor[10000, 800], CudaTensor[12000, 800]) -> to
     * `display_level` (`int`): The level of verbosity used when printing function arguments ad keyword arguments. If `0`, prints the type of the parameters. If `1`, prints values for all primitive types, shapes for arrays, tensors, dataframes and length for sequences. Otherwise, prints values for all parameters. Default: `1`.
     * `sep` (`str`): The separator used when printing function arguments and keyword arguments. Default: `', '`.
 
+2. `nested_timed` is similar to `timed`, however it is designed to work nicely with multiple timed functions that call each other, displaying both the total execution time and the difference after substracting other timed functions on the same call stack. See [Nested timing decorator](#nested-timing-decorator).
 
 ### Examples
 
@@ -253,4 +254,38 @@ numpy_operation(
 # numpy_operation([array([[0.74500602, 0.70666224, 0.83888559]])], [[0.74579988 0.51878032 0.06419635]], ('weights', '[0.0]'), ('inplace', 'True')) -> total time: 185300ns
 ```
 
+### Nested timing decorator
 
+```py
+from time import sleep
+
+from timed.nested_timed import nested_timed
+
+
+@nested_timed()
+def nested_fn():
+    @nested_timed()
+    def sleeping_fn(x):
+        sleep(x)
+
+    @nested_timed()
+    def other_fn():
+        sleep(0.5)
+        sleeping_fn(0.5)
+
+    sleep(1)
+    sleeping_fn(1)
+    other_fn()
+    sleeping_fn(1)
+
+
+nested_fn()
+```
+Prints
+```
+        sleeping_fn() -> total time: 1000592700ns, own time: 1000592700ns
+                sleeping_fn() -> total time: 500687200ns, own time: 500687200ns
+        other_fn() -> total time: 1036725800ns, own time: 536038600ns
+        sleeping_fn() -> total time: 1000705600ns, own time: 1000705600ns
+nested_fn() -> total time: 4152634300ns, own time: 1114610200ns
+```
