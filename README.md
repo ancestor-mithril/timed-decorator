@@ -3,7 +3,7 @@
 ## Installation
 
 ```
-pip install git+https://github.com/ancestor-mithril/timed-decorator.git@master
+pip install timed-decorator==1.1.1
 ```
 
 ## Usage
