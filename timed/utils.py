@@ -54,6 +54,7 @@ class InputFormatter:
         self.show_args = show_args
         self.show_kwargs = show_kwargs
         self.display_level = display_level
+        self.sep = sep
 
     def __call__(self, fn_name, *args, **kwargs):
         parameters = ''
@@ -62,7 +63,7 @@ class InputFormatter:
         if self.show_kwargs:
             kwargs = self.format_kwargs(**kwargs)
             if len(parameters) > 0:
-                parameters += ', ' + kwargs
+                parameters += self.sep + kwargs
             else:
                 parameters = kwargs
 
@@ -73,8 +74,11 @@ class InputFormatter:
             return type(x).__name__
 
         if self.display_level == 1:
-            if isinstance(x, (ndarray, DataFrame, Series, Tensor)):
+            if isinstance(x, (ndarray, DataFrame, Series)):
                 return f'{type(x).__name__}{x.shape}'
+
+            if isinstance(x, Tensor):
+                return f'{type(x).__name__}{str(x.shape).lstrip("torch.Size(").rstrip(")")}'
 
             if isinstance(x, (str, int, float, bool)):
                 return str(x)
@@ -95,7 +99,7 @@ class InputFormatter:
     def format_kwargs(self, **kwargs):
         ret = [(k, self.format(v)) for k, v in kwargs.items()]
         ret = map(str, ret)
-        return ', '.join(ret)
+        return self.sep.join(ret)
 
 
 def get_tensor_device(args):
