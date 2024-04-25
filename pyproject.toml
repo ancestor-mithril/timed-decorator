@@ -1,0 +1,27 @@
+[project]
+name = "timed-decorator"
+version = "0.0.0"
+requires-python = ">=3.9"
+description = "A timing decorator for python functions."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "George Stoica", email = "george.stoica@senticlab.com"},
+]
+maintainers = [
+    { name = "George Stoica", email = "george.stoica@senticlab.com"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+#    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+]
+
+keywords = [
+    'timing',
+]
+
+[project.urls]
+repository = "https://github.com/ancestor-mithril/timed-decorator"
+
