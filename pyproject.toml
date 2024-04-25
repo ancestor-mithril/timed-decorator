@@ -1,7 +1,8 @@
 [project]
-name = "timed-decorator"
+name = "timed"
 version = "0.0.0"
-requires-python = ">=3.9"
+#requires-python = ">=3.10"
+requires-python = ">=3.7"
 description = "A timing decorator for python functions."
 readme = "README.md"
 license = { file = "LICENSE" }
