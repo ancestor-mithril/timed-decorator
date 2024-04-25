@@ -38,6 +38,10 @@ batched_euclidean_distance(CpuTensor[10000, 800], CpuTensor[12000, 800]) -> tota
 batched_euclidean_distance(CudaTensor[10000, 800], CudaTensor[12000, 800]) -> total time: 260411900ns
 ```
 
+### Documentation
+
+### Examples
+
 Simple usage.
 ```py
 from timed.simple_timed import timed
@@ -75,7 +79,7 @@ fibonacci(10000)
 # fibonacci() -> total time: 2062400ns
 ```
 
-The decorator can be configured to use seconds instead of nanoseconds. 
+Using seconds instead of nanoseconds. 
 ```py
 from timed.simple_timed import timed
 
@@ -132,7 +136,7 @@ numpy_operation(
 # numpy_operation(list, ndarray) -> total time: 204200ns
 ```
 
-The default display level is 1, and prints shapes where possible.
+Using the default display level (1).
 
 ```py
 from timed.simple_timed import timed
@@ -168,7 +172,8 @@ numpy_operation(
 # numpy_operation(list(ndarray)[10], ndarray(2, 3)) -> total time: 166400ns
 ```
 
-Displaying the keyword arguments.
+Showing the keyword arguments.
+
 ```py
 from timed.simple_timed import timed
 import numpy as np
@@ -203,7 +208,8 @@ numpy_operation(
 # numpy_operation(list(ndarray)[10], ndarray(2, 3), ('weights', 'list(float)[10]'), ('inplace', 'True'), ('aggregate', 'sum')) -> total time: 166400ns
 ```
 
-Display level 2 prints the function arguments as given (not recommended).
+Not recommended: using display level 2 shows unformatted function arguments.
+
 ```py
 from timed.simple_timed import timed
 import numpy as np
