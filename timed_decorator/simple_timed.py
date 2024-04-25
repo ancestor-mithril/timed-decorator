@@ -2,7 +2,7 @@ from functools import wraps
 from gc import collect
 from time import perf_counter_ns
 
-from timed.utils import nop, TimeFormatter, InputFormatter, synchronize_cuda
+from .utils import nop, TimeFormatter, InputFormatter, synchronize_cuda
 
 
 def timed(collect_gc: bool = True,

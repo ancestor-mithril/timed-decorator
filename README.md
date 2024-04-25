@@ -14,7 +14,7 @@ Attach it to the function you want to time and run the application.
 import torch
 from torch import Tensor
 
-from timed.simple_timed import timed
+from timed_decorator.simple_timed import timed
 
 
 @timed(show_args=True)
@@ -55,7 +55,7 @@ batched_euclidean_distance(CudaTensor[10000, 800], CudaTensor[12000, 800]) -> to
 
 Simple usage.
 ```py
-from timed.simple_timed import timed
+from timed_decorator.simple_timed import timed
 
 
 @timed()
@@ -74,7 +74,7 @@ fibonacci(10000)
 Set `collect_gc=False` to disable pre-collection of garbage.
 
 ```py
-from timed.simple_timed import timed
+from timed_decorator.simple_timed import timed
 
 
 @timed(collect_gc=False)
@@ -92,7 +92,7 @@ fibonacci(10000)
 
 Using seconds instead of nanoseconds. 
 ```py
-from timed.simple_timed import timed
+from timed_decorator.simple_timed import timed
 
 
 @timed(use_seconds=True, precision=3)
@@ -115,7 +115,7 @@ call_recursive_fibonacci(30)
 
 Displaying function parameters:
 ```py
-from timed.simple_timed import timed
+from timed_decorator.simple_timed import timed
 import numpy as np
 
 
@@ -150,7 +150,7 @@ numpy_operation(
 Using the default display level (1).
 
 ```py
-from timed.simple_timed import timed
+from timed_decorator.simple_timed import timed
 import numpy as np
 
 
@@ -186,7 +186,7 @@ numpy_operation(
 Showing the keyword arguments.
 
 ```py
-from timed.simple_timed import timed
+from timed_decorator.simple_timed import timed
 import numpy as np
 
 
@@ -222,7 +222,7 @@ numpy_operation(
 Not recommended: using display level 2 shows unformatted function arguments.
 
 ```py
-from timed.simple_timed import timed
+from timed_decorator.simple_timed import timed
 import numpy as np
 
 
@@ -259,7 +259,7 @@ numpy_operation(
 ```py
 from time import sleep
 
-from timed.nested_timed import nested_timed
+from timed_decorator.nested_timed import nested_timed
 
 
 @nested_timed()

@@ -1,6 +1,6 @@
 [project]
-name = "timed"
-version = "1.1.0"
+name = "timed-decorator"
+version = "1.1.1"
 #requires-python = ">=3.10"
 requires-python = ">=3.7"
 description = "A timing decorator for python functions."

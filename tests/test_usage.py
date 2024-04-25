@@ -2,9 +2,9 @@ import unittest
 from time import sleep
 
 from tests.functions import fibonacci, recursive_fibonacci
-from timed.nested_timed import nested_timed
-from timed.simple_timed import timed
-from timed.utils import build_decorated_fn
+from timed_decorator.nested_timed import nested_timed
+from timed_decorator.simple_timed import timed
+from timed_decorator.utils import build_decorated_fn
 
 
 class UsageTest(unittest.TestCase):
