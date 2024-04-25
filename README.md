@@ -2,8 +2,6 @@
 
 ## Installation
 
-Cloning the repo and installing with pip:
-
 ```
 pip install git+https://github.com/ancestor-mithril/timed-decorator.git@master
 ```
