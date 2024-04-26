@@ -293,7 +293,7 @@ nested_fn() -> total time: 4152634300ns, own time: 1114610200ns
 ```
 
 ### Using a logger
-```
+```py
 import logging
 from time import sleep
 
@@ -318,7 +318,7 @@ INFO:TEST_LOGGER:fn() -> total time: 1001000200ns
 ```
 
 Capture a logger's input
-```
+```py
 import logging
 from io import StringIO
 from time import sleep
