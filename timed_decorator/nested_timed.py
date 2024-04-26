@@ -62,9 +62,9 @@ def nested_timed(collect_gc: bool = True,
                 ret = fn(*args, **kwargs)
                 synchronize_cuda(*args, **kwargs)
                 end = perf_counter_ns()
-            except:
+            except Exception as e:
                 nested_level -= 1
-                raise
+                raise e
 
             total_time = end - start
 

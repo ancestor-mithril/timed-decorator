@@ -14,7 +14,6 @@ except ModuleNotFoundError:
     class DataFrame:
         pass
 
-
     class Series:
         pass
 try:
@@ -23,7 +22,6 @@ try:
 except ModuleNotFoundError:
     class Tensor:
         pass
-
 
     torch = None
 
