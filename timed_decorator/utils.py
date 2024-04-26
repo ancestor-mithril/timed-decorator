@@ -1,4 +1,6 @@
+import logging
 from collections.abc import Sequence
+from typing import Union
 
 try:
     from numpy import ndarray
@@ -47,6 +49,23 @@ class TimeFormatter:
         if self.use_seconds:
             return f'{nanoseconds / 1e9:.{self.precision}f}s'
         return f'{nanoseconds}ns'
+
+
+class Logger:
+    def __init__(self, file_path: Union[str, None], logger_name: Union[str, None]):
+        assert file_path is None or logger_name is None
+
+        self.file_path = file_path
+        self.logger_name = logger_name
+
+    def __call__(self, string: str):
+        if self.file_path is not None:
+            with open(self.file_path, 'a') as f:
+                f.write(string + '\n')
+        elif self.logger_name is not None:
+            logging.getLogger(self.logger_name).info(string)
+        else:
+            print(string)
 
 
 class InputFormatter:

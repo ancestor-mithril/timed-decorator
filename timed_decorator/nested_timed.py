@@ -2,7 +2,7 @@ from functools import wraps
 from gc import collect
 from time import perf_counter_ns
 
-from .utils import nop, TimeFormatter, InputFormatter, synchronize_cuda
+from .utils import nop, TimeFormatter, InputFormatter, synchronize_cuda, Logger
 
 nested_level = 0
 nested_times = dict()
@@ -14,7 +14,9 @@ def nested_timed(collect_gc: bool = True,
                  show_args: bool = False,
                  show_kwargs: bool = False,
                  display_level: int = 1,
-                 sep: str = ', '):
+                 sep: str = ', ',
+                 file_path: Union[str, None] = None,
+                 logger_name: Union[str, None] = None):
     """
     A nested timing decorator that measures the time elapsed during the function call and accounts for other decorators
     further in the call stack.
@@ -33,10 +35,18 @@ def nested_timed(collect_gc: bool = True,
             prints the type of the parameters. If `1`, prints values for all primitive types, shapes for arrays,
             tensors, dataframes and length for sequences. Otherwise, prints values for all parameters. Default: `1`.
         sep (str): The separator used when printing function arguments and keyword arguments. Default: `', '`.
+        file_path (str): If not `None`, writes the measurement at the end of the given file path. For thread safe
+            file writing configure use `logger_name` instead. Can't be used in conjunction with `logger_name`. If both
+            `file_path` and `logger_name` are `None`, writes to stdout. Default: `None`.
+        logger_name (str): If not `None`, uses the given logger to print the measurement. Can't be used in conjunction
+            with `file_path`. If both `file_path` and `logger_name` are `None`, writes to stdout. Default: `None`.
     """
+    assert file_path is None or logger_name is None
+
     gc_collect = collect if collect_gc else nop
     time_formatter = TimeFormatter(use_seconds, precision)
     input_formatter = InputFormatter(show_args, show_kwargs, display_level, sep)
+    logger = Logger(file_path, logger_name)
 
     def decorator(fn):
         @wraps(fn)
@@ -70,8 +80,9 @@ def nested_timed(collect_gc: bool = True,
                     nested_times[nested_level] = []
                 nested_times[nested_level].append(total_time)
 
-            print('\t' * nested_level + f'{input_formatter(fn.__name__, *args, **kwargs)} '
-                                        f'-> total time: {time_formatter(total_time)}, own time: {time_formatter(own_time)}')
+            logger('\t' * nested_level + f'{input_formatter(fn.__name__, *args, **kwargs)} '
+                                         f'-> total time: {time_formatter(total_time)}, '
+                                         f'own time: {time_formatter(own_time)}')
             return ret
 
         return wrap
