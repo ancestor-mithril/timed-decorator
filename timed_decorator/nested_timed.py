@@ -1,6 +1,7 @@
 from functools import wraps
 from gc import collect
 from time import perf_counter_ns
+from typing import Union
 
 from .utils import nop, TimeFormatter, InputFormatter, synchronize_cuda, Logger
 
