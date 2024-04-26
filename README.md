@@ -30,7 +30,7 @@ b = torch.rand((12000, 800))
 batched_euclidean_distance(a, b)
 a = a.cuda()
 b = b.cuda()
-batched_euclidean_distance(a, b)
+batched_euclidean_distance(a, b)  # Cuda device is synchronized if function arguments are on device.
 ```
 Prints:
 ```
