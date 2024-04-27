@@ -1,3 +1,4 @@
+import gc
 from functools import wraps
 from gc import collect
 from time import perf_counter_ns
@@ -7,6 +8,7 @@ from .utils import nop, TimeFormatter, InputFormatter, synchronize_cuda, Logger
 
 
 def timed(collect_gc: bool = True,
+          disable_gc: bool = False,
           use_seconds: bool = False,
           precision: int = 9,
           show_args: bool = False,
@@ -22,6 +24,7 @@ def timed(collect_gc: bool = True,
     Args:
         collect_gc (bool): If `True`, runs a full garbage collection before timing the wrapped function. Default:
             `True`.
+        disable_gc (bool): If `True`, disabled garbage collection during function execution. Default: `False`.
         use_seconds (bool): If `True`, displays the elapsed time in seconds. Default: `False`.
         precision (int): Used in conjunction with `use_seconds`, represents the decimal points used for printing
             seconds. Default: `9`.
@@ -49,11 +52,17 @@ def timed(collect_gc: bool = True,
         @wraps(fn)
         def wrap(*args, **kwargs):
             gc_collect()
+            if disable_gc:
+                gc.disable()
 
-            start = perf_counter_ns()
-            ret = fn(*args, **kwargs)
-            synchronize_cuda(*args, **kwargs)
-            end = perf_counter_ns()
+            try:
+                start = perf_counter_ns()
+                ret = fn(*args, **kwargs)
+                synchronize_cuda(*args, **kwargs)
+                end = perf_counter_ns()
+            finally:
+                if disable_gc:
+                    gc.enable()
 
             logger(f'{input_formatter(fn.__name__, *args, **kwargs)} -> total time: {time_formatter(end - start)}')
             return ret

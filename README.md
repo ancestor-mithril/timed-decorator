@@ -42,6 +42,7 @@ batched_euclidean_distance(CudaTensor[10000, 800], CudaTensor[12000, 800]) -> to
 
 1. `timed`
     * `collect_gc` (`bool`): If `True`, runs a full garbage collection before timing the wrapped function. Default: `True`.
+    * `disable_gc` (`bool`): If `True`, disabled garbage collection during function execution. Default: `False`.
     * `use_seconds` (`bool`): If `True`, displays the elapsed time in seconds. Default: `False`.
     * `precision` (`int`): Used in conjunction with `use_seconds`, represents the decimal points used for printing seconds. Default: `9`.
     * `show_args` (`bool`): If `True`, displays the function arguments according to `display_level`. Useful when timing function calls with arguments of different magnitude. Default: `False`.
@@ -97,7 +98,7 @@ Using seconds instead of nanoseconds.
 from timed_decorator.simple_timed import timed
 
 
-@timed(use_seconds=True, precision=3)
+@timed(disable_gc=True, use_seconds=True, precision=3)
 def call_recursive_fibonacci(n: int) -> int:
     return recursive_fibonacci(n)
 

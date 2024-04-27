@@ -37,6 +37,9 @@ class UsageTest(unittest.TestCase):
         fn = build_decorated_fn(fibonacci, timed, show_args=True, display_level=2)
         fn(1000)
 
+        fn = build_decorated_fn(fibonacci, timed, show_args=True, disable_gc=True)
+        fn(1000)
+
     @staticmethod
     def test_nested_timed():
         @nested_timed(collect_gc=False, use_seconds=True, precision=3)

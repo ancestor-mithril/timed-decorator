@@ -1,3 +1,4 @@
+import gc
 from functools import wraps
 from gc import collect
 from time import perf_counter_ns
@@ -10,6 +11,7 @@ nested_times = dict()
 
 
 def nested_timed(collect_gc: bool = True,
+                 disable_gc: bool = False,
                  use_seconds: bool = False,
                  precision: int = 9,
                  show_args: bool = False,
@@ -26,6 +28,7 @@ def nested_timed(collect_gc: bool = True,
     Args:
         collect_gc (bool): If `True`, runs a full garbage collection before timing the wrapped function. Default:
             `True`.
+        disable_gc (bool): If `True`, disabled garbage collection during function execution. Default: `False`.
         use_seconds (bool): If `True`, displays the elapsed time in seconds. Default: `False`.
         precision (int): Used in conjunction with `use_seconds`, represents the decimal points used for printing
             seconds. Default: `9`.
@@ -56,6 +59,8 @@ def nested_timed(collect_gc: bool = True,
             nested_level += 1
 
             gc_collect()
+            if disable_gc:
+                gc.disable()
 
             try:
                 start = perf_counter_ns()
@@ -65,6 +70,9 @@ def nested_timed(collect_gc: bool = True,
             except Exception as e:
                 nested_level -= 1
                 raise e
+            finally:
+                if disable_gc:
+                    gc.enable()
 
             total_time = end - start
 
