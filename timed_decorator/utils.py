@@ -136,3 +136,7 @@ def synchronize_cuda(*args, **kwargs):
         device = get_tensor_device(kwargs.values())
     if device != '':
         torch.cuda.synchronize(device)
+
+
+def write_mutable(out_dict, value):
+    out_dict["time"] = value
