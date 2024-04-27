@@ -17,7 +17,7 @@ def timed(collect_gc: bool = True,
           sep: str = ', ',
           file_path: Union[str, None] = None,
           logger_name: Union[str, None] = None,
-          ns_output: dict = None):
+          out: dict = None):
     """
     A simple timing decorator that measures the time elapsed during the function call and prints it.
     It uses perf_counter_ns for measuring which includes time elapsed during sleep and is system-wide.
@@ -41,8 +41,8 @@ def timed(collect_gc: bool = True,
             `file_path` and `logger_name` are `None`, writes to stdout. Default: `None`.
         logger_name (str): If not `None`, uses the given logger to print the measurement. Can't be used in conjunction
             with `file_path`. If both `file_path` and `logger_name` are `None`, writes to stdout. Default: `None`.
-        ns_output (dict): If not `None`, stores the elapsed time in nanoseconds in the given dict at the "time" key.
-            Default: `None`.
+        out (dict): If not `None`, stores the elapsed time in nanoseconds in the given dict using the function name as
+            key. If the key already exists, adds the time to the existing value. Default: `None`.
     """
     assert file_path is None or logger_name is None
 
@@ -50,7 +50,7 @@ def timed(collect_gc: bool = True,
     time_formatter = TimeFormatter(use_seconds, precision)
     input_formatter = InputFormatter(show_args, show_kwargs, display_level, sep)
     logger = Logger(file_path, logger_name)
-    ns_out = write_mutable if ns_output is not None else nop
+    ns_out = write_mutable if out is not None else nop
 
     def decorator(fn):
         @wraps(fn)
@@ -69,7 +69,7 @@ def timed(collect_gc: bool = True,
                     gc.enable()
 
             elapsed = end - start
-            ns_out(ns_output, elapsed)
+            ns_out(out, fn.__name__, elapsed)
             logger(f'{input_formatter(fn.__name__, *args, **kwargs)} -> total time: {time_formatter(elapsed)}')
             return ret
 

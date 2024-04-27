@@ -101,14 +101,14 @@ class UsageTest(unittest.TestCase):
     def test_ns_output(self):
         ns = {}
 
-        @timed(ns_output=ns)
+        @timed(out=ns)
         def fn():
             sleep(1)
 
         fn()
 
-        self.assertIsInstance(ns["time"], int)
-        self.assertGreater(ns["time"], 1**9)
+        self.assertIsInstance(ns[fn.__name__], int)
+        self.assertGreater(ns[fn.__name__], 1**9)
 
 
 if __name__ == '__main__':

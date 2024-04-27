@@ -49,9 +49,9 @@ batched_euclidean_distance(CudaTensor[10000, 800], CudaTensor[12000, 800]) -> to
     * `show_kwargs` (`bool`): If `True`, displays the keyword arguments according to `display_level`. Default: `False`.
     * `display_level` (`int`): The level of verbosity used when printing function arguments ad keyword arguments. If `0`, prints the type of the parameters. If `1`, prints values for all primitive types, shapes for arrays, tensors, dataframes and length for sequences. Otherwise, prints values for all parameters. Default: `1`.
     * `sep` (`str`): The separator used when printing function arguments and keyword arguments. Default: `', '`.
-    * `file_path` (str): If not `None`, writes the measurement at the end of the given file path. For thread safe file writing configure use `logger_name` instead. Can't be used in conjunction with `logger_name`. If both `file_path` and `logger_name` are `None`, writes to stdout. Default: `None`.
-    * `logger_name` (str): If not `None`, uses the given logger to print the measurement. Can't be used in conjunction with `file_path`. If both `file_path` and `logger_name` are `None`, writes to stdout. Default: `None`. See [Using a logger](#using-a-logger).
-    * `ns_output` (`dict`): If not `None`, writes the measured time in nanoseconds to the given dictionary at the `time` key. Default: `None`.
+    * `file_path` (`str`): If not `None`, writes the measurement at the end of the given file path. For thread safe file writing configure use `logger_name` instead. Can't be used in conjunction with `logger_name`. If both `file_path` and `logger_name` are `None`, writes to stdout. Default: `None`.
+    * `logger_name` (`str`): If not `None`, uses the given logger to print the measurement. Can't be used in conjunction with `file_path`. If both `file_path` and `logger_name` are `None`, writes to stdout. Default: `None`. See [Using a logger](#using-a-logger).
+    * `out` (`dict`): If not `None`, stores the elapsed time in nanoseconds in the given dict using the function name as key. If the key already exists, adds the time to the existing value. Default: `None`. See [Storing the elapsed time in a dict](#storing-the-elapsed-time-in-a-dict)
 
 2. `nested_timed` is similar to `timed`, however it is designed to work nicely with multiple timed functions that call each other, displaying both the total execution time and the difference after substracting other timed functions on the same call stack. See [Nested timing decorator](#nested-timing-decorator).
 
@@ -346,4 +346,31 @@ print(log_stream.getvalue().split('\n')[:-1])
 Prints
 ```
 ['fn() -> total time: 1000214700ns', 'fn() -> total time: 1000157800ns']
+```
+
+### Storing the elapsed time in a dict
+```py
+from time import sleep
+
+from timed_decorator.simple_timed import timed
+
+ns = {}
+
+
+@timed(out=ns)
+def fn():
+    sleep(1)
+
+
+fn()
+print(ns)
+fn()
+print(ns)
+```
+Prints
+```
+fn() -> total time: 1000767300ns
+{'fn': 1000767300}
+fn() -> total time: 1000238800ns
+{'fn': 2001006100}
 ```
