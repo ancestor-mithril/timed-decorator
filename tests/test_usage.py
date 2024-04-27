@@ -98,6 +98,18 @@ class UsageTest(unittest.TestCase):
         self.assertIn(fn.__name__, logged[0])
         self.assertIn(fn.__name__, logged[1])
 
+    def test_ns_output(self):
+        ns = {}
+
+        @timed(ns_output=ns)
+        def fn():
+            sleep(1)
+
+        fn()
+
+        self.assertIsInstance(ns["time"], int)
+        self.assertGreater(ns["time"], 1**9)
+
 
 if __name__ == '__main__':
     unittest.main()
