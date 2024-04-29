@@ -50,22 +50,22 @@ class UsageTest(unittest.TestCase):
 
             @nested_timed(collect_gc=False, use_seconds=True, precision=3)
             def other_fn():
-                sleep(0.5)
-                sleeping_fn(0.5)
+                sleep(0.1)
+                sleeping_fn(0.1)
 
-            sleep(1)
-            sleeping_fn(1)
+            sleep(0.1)
+            sleeping_fn(0.1)
             other_fn()
-            sleeping_fn(1)
+            sleeping_fn(0.1)
 
         nested_fn()
 
     def test_file_usage(self):
         filename = 'file.txt'
 
-        @timed(file_path=filename)
+        @timed(file_path=filename, stdout=False)
         def fn():
-            sleep(1)
+            sleep(0.5)
 
         try:
             fn()
@@ -86,9 +86,9 @@ class UsageTest(unittest.TestCase):
         logging.root.setLevel(logging.NOTSET)
         logging.getLogger(logger_name).addHandler(log_handler)
 
-        @timed(logger_name=logger_name)
+        @timed(logger_name=logger_name, stdout=False)
         def fn():
-            sleep(1)
+            sleep(0.5)
 
         fn()
         fn()
@@ -101,14 +101,24 @@ class UsageTest(unittest.TestCase):
     def test_ns_output(self):
         ns = {}
 
-        @timed(out=ns)
+        @timed(out=ns, stdout=False)
         def fn():
-            sleep(1)
+            sleep(0.5)
 
         fn()
 
         self.assertIsInstance(ns[fn.__name__], int)
-        self.assertGreater(ns[fn.__name__], 1**9)
+        self.assertGreater(ns[fn.__name__], 1**9 / 2)
+
+    def test_return_time(self):
+        @timed(return_time=True, stdout=False)
+        def fn():
+            sleep(0.5)
+
+        _, elapsed = fn()
+
+        self.assertIsInstance(elapsed, int)
+        self.assertGreater(elapsed, 1**9 / 2)
 
 
 if __name__ == '__main__':
