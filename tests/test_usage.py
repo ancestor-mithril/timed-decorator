@@ -108,17 +108,19 @@ class UsageTest(unittest.TestCase):
         fn()
 
         self.assertIsInstance(ns[fn.__name__], int)
-        self.assertGreater(ns[fn.__name__], 1**9 / 2)
+        self.assertGreater(ns[fn.__name__], 1 ** 9 / 2)
 
     def test_return_time(self):
-        @timed(return_time=True, stdout=False)
-        def fn():
-            sleep(0.5)
+        seconds = 0.1
 
-        _, elapsed = fn()
+        @timed(return_time=True, stdout=False)
+        def fn(x):
+            sleep(x)
+
+        _, elapsed = fn(seconds)
 
         self.assertIsInstance(elapsed, int)
-        self.assertGreater(elapsed, 1**9 / 2)
+        self.assertGreater(elapsed / 1e+9, seconds)
 
 
 if __name__ == '__main__':
