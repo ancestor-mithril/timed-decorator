@@ -50,13 +50,13 @@ class UsageTest(unittest.TestCase):
 
             @nested_timed(collect_gc=False, use_seconds=True, precision=3)
             def other_fn():
-                sleep(0.5)
-                sleeping_fn(0.5)
+                sleep(0.1)
+                sleeping_fn(0.1)
 
-            sleep(1)
-            sleeping_fn(1)
+            sleep(0.1)
+            sleeping_fn(0.1)
             other_fn()
-            sleeping_fn(1)
+            sleeping_fn(0.1)
 
         nested_fn()
 
@@ -65,7 +65,7 @@ class UsageTest(unittest.TestCase):
 
         @timed(file_path=filename, stdout=False)
         def fn():
-            sleep(1)
+            sleep(0.5)
 
         try:
             fn()
@@ -88,7 +88,7 @@ class UsageTest(unittest.TestCase):
 
         @timed(logger_name=logger_name, stdout=False)
         def fn():
-            sleep(1)
+            sleep(0.5)
 
         fn()
         fn()
@@ -103,12 +103,12 @@ class UsageTest(unittest.TestCase):
 
         @timed(out=ns, stdout=False)
         def fn():
-            sleep(1)
+            sleep(0.5)
 
         fn()
 
         self.assertIsInstance(ns[fn.__name__], int)
-        self.assertGreater(ns[fn.__name__], 1**9)
+        self.assertGreater(ns[fn.__name__], 1**9 / 2)
 
     def test_return_time(self):
         @timed(return_time=True, stdout=False)
