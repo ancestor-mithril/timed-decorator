@@ -50,20 +50,22 @@ class TimeFormatter:
 
 
 class Logger:
-    def __init__(self, file_path: Union[str, None], logger_name: Union[str, None]):
-        assert file_path is None or logger_name is None
-
+    def __init__(self, stdout: bool, file_path: Union[str, None], logger_name: Union[str, None]):
+        self.stdout = stdout
         self.file_path = file_path
         self.logger_name = logger_name
 
     def __call__(self, string: str):
+        if self.stdout:
+            print(string)
+
         if self.file_path is not None:
             with open(self.file_path, 'a') as f:
                 f.write(string + '\n')
-        elif self.logger_name is not None:
+
+        if self.logger_name is not None:
             logging.getLogger(self.logger_name).info(string)
-        else:
-            print(string)
+
 
 
 class InputFormatter:

@@ -18,6 +18,7 @@ def nested_timed(collect_gc: bool = True,
                  show_kwargs: bool = False,
                  display_level: int = 1,
                  sep: str = ', ',
+                 stdout: bool = True,
                  file_path: Union[str, None] = None,
                  logger_name: Union[str, None] = None,
                  out: dict = None):
@@ -40,20 +41,18 @@ def nested_timed(collect_gc: bool = True,
             prints the type of the parameters. If `1`, prints values for all primitive types, shapes for arrays,
             tensors, dataframes and length for sequences. Otherwise, prints values for all parameters. Default: `1`.
         sep (str): The separator used when printing function arguments and keyword arguments. Default: `', '`.
+        stdout (bool): If `True`, writes the elapsed time to stdout. Default: `True`.
         file_path (str): If not `None`, writes the measurement at the end of the given file path. For thread safe
-            file writing configure use `logger_name` instead. Can't be used in conjunction with `logger_name`. If both
-            `file_path` and `logger_name` are `None`, writes to stdout. Default: `None`.
+            file writing configure use `logger_name` instead. Default: `None`.
         logger_name (str): If not `None`, uses the given logger to print the measurement. Can't be used in conjunction
-            with `file_path`. If both `file_path` and `logger_name` are `None`, writes to stdout. Default: `None`.
+            with `file_path`. Default: `None`.
         out (dict): If not `None`, stores the elapsed time in nanoseconds in the given dict using the function name as
             key. If the key already exists, adds the time to the existing value. Default: `None`.
     """
-    assert file_path is None or logger_name is None
-
     gc_collect = collect if collect_gc else nop
     time_formatter = TimeFormatter(use_seconds, precision)
     input_formatter = InputFormatter(show_args, show_kwargs, display_level, sep)
-    logger = Logger(file_path, logger_name)
+    logger = Logger(stdout, file_path, logger_name)
     ns_out = write_mutable if out is not None else nop
 
     def decorator(fn):

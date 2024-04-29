@@ -63,7 +63,7 @@ class UsageTest(unittest.TestCase):
     def test_file_usage(self):
         filename = 'file.txt'
 
-        @timed(file_path=filename)
+        @timed(file_path=filename, stdout=False)
         def fn():
             sleep(1)
 
@@ -86,7 +86,7 @@ class UsageTest(unittest.TestCase):
         logging.root.setLevel(logging.NOTSET)
         logging.getLogger(logger_name).addHandler(log_handler)
 
-        @timed(logger_name=logger_name)
+        @timed(logger_name=logger_name, stdout=False)
         def fn():
             sleep(1)
 
@@ -101,7 +101,7 @@ class UsageTest(unittest.TestCase):
     def test_ns_output(self):
         ns = {}
 
-        @timed(out=ns)
+        @timed(out=ns, stdout=False)
         def fn():
             sleep(1)
 

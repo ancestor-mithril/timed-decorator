@@ -28,9 +28,11 @@ def batched_euclidean_distance(x: Tensor, y: Tensor) -> Tensor:
 a = torch.rand((10000, 800))
 b = torch.rand((12000, 800))
 batched_euclidean_distance(a, b)
-a = a.cuda()
-b = b.cuda()
-batched_euclidean_distance(a, b)  # Cuda device is synchronized if function arguments are on device.
+
+if torch.cuda.is_available():
+    a = a.cuda()
+    b = b.cuda()
+    batched_euclidean_distance(a, b)  # Cuda device is synchronized if function arguments are on device.
 ```
 Prints:
 ```
@@ -49,8 +51,9 @@ batched_euclidean_distance(CudaTensor[10000, 800], CudaTensor[12000, 800]) -> to
     * `show_kwargs` (`bool`): If `True`, displays the keyword arguments according to `display_level`. Default: `False`.
     * `display_level` (`int`): The level of verbosity used when printing function arguments ad keyword arguments. If `0`, prints the type of the parameters. If `1`, prints values for all primitive types, shapes for arrays, tensors, dataframes and length for sequences. Otherwise, prints values for all parameters. Default: `1`.
     * `sep` (`str`): The separator used when printing function arguments and keyword arguments. Default: `', '`.
-    * `file_path` (`str`): If not `None`, writes the measurement at the end of the given file path. For thread safe file writing configure use `logger_name` instead. Can't be used in conjunction with `logger_name`. If both `file_path` and `logger_name` are `None`, writes to stdout. Default: `None`.
-    * `logger_name` (`str`): If not `None`, uses the given logger to print the measurement. Can't be used in conjunction with `file_path`. If both `file_path` and `logger_name` are `None`, writes to stdout. Default: `None`. See [Using a logger](#using-a-logger).
+    * `stdout` (`bool`): If `True`, writes the elapsed time to stdout. Default: `True`.
+    * `file_path` (`str`): If not `None`, writes the measurement at the end of the given file path. For thread safe file writing configure use `logger_name` instead. Default: `None`.
+    * `logger_name` (`str`): If not `None`, uses the given logger to print the measurement. Can't be used in conjunction with `file_path`. Default: `None`. See [Using a logger](#using-a-logger).
     * `out` (`dict`): If not `None`, stores the elapsed time in nanoseconds in the given dict using the function name as key. If the key already exists, adds the time to the existing value. Default: `None`. See [Storing the elapsed time in a dict](#storing-the-elapsed-time-in-a-dict).
 
 2. `nested_timed` is similar to `timed`, however it is designed to work nicely with multiple timed functions that call each other, displaying both the total execution time and the difference after subtracting other timed functions on the same call stack. See [Nested timing decorator](#nested-timing-decorator).
@@ -305,7 +308,7 @@ logging.basicConfig()
 logging.root.setLevel(logging.NOTSET)
 
 
-@timed(logger_name='TEST_LOGGER')
+@timed(logger_name='TEST_LOGGER', stdout=False)
 def fn():
     sleep(1)
 
@@ -333,7 +336,7 @@ logging.root.setLevel(logging.NOTSET)
 logging.getLogger('TEST_LOGGER').addHandler(log_handler)
 
 
-@timed(logger_name='TEST_LOGGER')
+@timed(logger_name='TEST_LOGGER', stdout=False)
 def fn():
     sleep(1)
 
@@ -357,7 +360,7 @@ from timed_decorator.simple_timed import timed
 ns = {}
 
 
-@timed(out=ns)
+@timed(out=ns, stdout=False)
 def fn():
     sleep(1)
 
@@ -369,8 +372,6 @@ print(ns)
 ```
 Prints
 ```
-fn() -> total time: 1000767300ns
 {'fn': 1000767300}
-fn() -> total time: 1000238800ns
 {'fn': 2001006100}
 ```
