@@ -54,6 +54,7 @@ batched_euclidean_distance(CudaTensor[10000, 800], CudaTensor[12000, 800]) -> to
     * `stdout` (`bool`): If `True`, writes the elapsed time to stdout. Default: `True`.
     * `file_path` (`str`): If not `None`, writes the measurement at the end of the given file path. For thread safe file writing configure use `logger_name` instead. Default: `None`.
     * `logger_name` (`str`): If not `None`, uses the given logger to print the measurement. Can't be used in conjunction with `file_path`. Default: `None`. See [Using a logger](#using-a-logger).
+    * `return_time` (`bool`): If `True`, returns the elapsed time in addition to the wrapped function's return value. Default: `False`.
     * `out` (`dict`): If not `None`, stores the elapsed time in nanoseconds in the given dict using the function name as key. If the key already exists, adds the time to the existing value. Default: `None`. See [Storing the elapsed time in a dict](#storing-the-elapsed-time-in-a-dict).
 
 2. `nested_timed` is similar to `timed`, however it is designed to work nicely with multiple timed functions that call each other, displaying both the total execution time and the difference after subtracting other timed functions on the same call stack. See [Nested timing decorator](#nested-timing-decorator).
@@ -75,7 +76,27 @@ def fibonacci(n: int) -> int:
 
 
 fibonacci(10000)
-# fibonacci() -> total time: 2114100ns
+# fibonacci() -> total time: 1114100ns
+```
+
+Getting both the function's return value and the elapsed time.
+```py
+from timed_decorator.simple_timed import timed
+
+
+@timed(return_time=True)
+def fibonacci(n: int) -> int:
+    assert n > 0
+    a, b = 0, 1
+    for _ in range(n):
+        a, b = b, a + b
+    return a
+
+
+value, elapsed = fibonacci(10000)
+print(f'10000th fibonacci number has {len(str(value))} digits. Calculating it took {elapsed}ns.')
+# fibonacci() -> total time: 1001200ns
+# 10000th fibonacci number has 2090 digits. Calculating it took 1001200ns.
 ```
 
 Set `collect_gc=False` to disable pre-collection of garbage.
@@ -94,7 +115,7 @@ def fibonacci(n: int) -> int:
 
 
 fibonacci(10000)
-# fibonacci() -> total time: 2062400ns
+# fibonacci() -> total time: 1062400ns
 ```
 
 Using seconds instead of nanoseconds. 
@@ -117,7 +138,7 @@ def recursive_fibonacci(n: int) -> int:
 
 
 call_recursive_fibonacci(30)
-# call_recursive_fibonacci() -> total time: 0.098s
+# call_recursive_fibonacci() -> total time: 0.045s
 ```
 
 Displaying function parameters:
