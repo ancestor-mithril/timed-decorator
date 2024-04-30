@@ -75,7 +75,7 @@ def timed(collect_gc: bool = True,
 
             elapsed = end - start
             fn_name = fn.__qualname__ if use_qualname else fn.__name__
-            ns_out(out, fn_name, elapsed)
+            ns_out(out, fn.__qualname__, elapsed)
             logger(f'{input_formatter(fn_name, *args, **kwargs)} -> total time: {time_formatter(elapsed)}')
             if return_time:
                 return ret, elapsed

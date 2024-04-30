@@ -99,7 +99,7 @@ def nested_timed(collect_gc: bool = True,
                 nested_times[nested_level].append(elapsed)
 
             fn_name = fn.__qualname__ if use_qualname else fn.__name__
-            ns_out(out, fn_name, elapsed)
+            ns_out(out, fn.__qualname__, elapsed)
             logger('\t' * nested_level + f'{input_formatter(fn_name, *args, **kwargs)} '
                                          f'-> total time: {time_formatter(elapsed)}, '
                                          f'own time: {time_formatter(own_time)}')
