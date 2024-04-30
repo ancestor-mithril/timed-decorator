@@ -22,7 +22,8 @@ def nested_timed(collect_gc: bool = True,
                  file_path: Union[str, None] = None,
                  logger_name: Union[str, None] = None,
                  return_time: bool = False,
-                 out: dict = None):
+                 out: dict = None,
+                 use_qualname: bool = False):
     """
     A nested timing decorator that measures the time elapsed during the function call and accounts for other decorators
     further in the call stack.
@@ -51,6 +52,8 @@ def nested_timed(collect_gc: bool = True,
             Default: `False`.
         out (dict): If not `None`, stores the elapsed time in nanoseconds in the given dict using the function name as
             key. If the key already exists, adds the time to the existing value. Default: `None`.
+        use_qualname (bool): If `True`, uses the qualified name of the function in all scenarios when the name is used.
+            The qualified name is also used as the key to the `out` parameter. Default: `False`.
     """
     gc_collect = collect if collect_gc else nop
     time_formatter = TimeFormatter(use_seconds, precision)
@@ -95,8 +98,9 @@ def nested_timed(collect_gc: bool = True,
                     nested_times[nested_level] = []
                 nested_times[nested_level].append(elapsed)
 
-            ns_out(out, fn.__name__, elapsed)
-            logger('\t' * nested_level + f'{input_formatter(fn.__name__, *args, **kwargs)} '
+            fn_name = fn.__qualname__ if use_qualname else fn.__name__
+            ns_out(out, fn_name, elapsed)
+            logger('\t' * nested_level + f'{input_formatter(fn_name, *args, **kwargs)} '
                                          f'-> total time: {time_formatter(elapsed)}, '
                                          f'own time: {time_formatter(own_time)}')
             if return_time:

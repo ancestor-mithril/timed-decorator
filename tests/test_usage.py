@@ -99,16 +99,28 @@ class UsageTest(unittest.TestCase):
         self.assertIn(fn.__name__, logged[1])
 
     def test_ns_output(self):
-        ns = {}
+        out = {}
 
-        @timed(out=ns, stdout=False)
+        @timed(out=out, stdout=False)
         def fn():
             sleep(0.5)
 
         fn()
 
-        self.assertIsInstance(ns[fn.__name__], int)
-        self.assertGreater(ns[fn.__name__], 1 ** 9 / 2)
+        self.assertIsInstance(out[fn.__name__], int)
+        self.assertGreater(out[fn.__name__], 1 ** 9 / 2)
+
+    def test_qualname(self):
+        out = {}
+
+        class ClassA:
+            @timed(use_qualname=True, out=out)
+            def wait(self, x):
+                sleep(x)
+
+        ClassA().wait(0.1)
+        key = next(iter(out.keys()))
+        self.assertIn(ClassA.__name__, key)
 
     def test_return_time(self):
         seconds = 0.1

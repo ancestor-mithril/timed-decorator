@@ -19,7 +19,8 @@ def timed(collect_gc: bool = True,
           file_path: Union[str, None] = None,
           logger_name: Union[str, None] = None,
           return_time: bool = False,
-          out: dict = None):
+          out: dict = None,
+          use_qualname: bool = False):
     """
     A simple timing decorator that measures the time elapsed during the function call and prints it.
     It uses perf_counter_ns for measuring which includes time elapsed during sleep and is system-wide.
@@ -47,6 +48,8 @@ def timed(collect_gc: bool = True,
             Default: `False`.
         out (dict): If not `None`, stores the elapsed time in nanoseconds in the given dict using the function name as
             key. If the key already exists, adds the time to the existing value. Default: `None`.
+        use_qualname (bool): If `True`, uses the qualified name of the function in all scenarios when the name is used.
+            The qualified name is also used as the key to the `out` parameter. Default: `False`.
     """
     gc_collect = collect if collect_gc else nop
     time_formatter = TimeFormatter(use_seconds, precision)
@@ -71,8 +74,9 @@ def timed(collect_gc: bool = True,
                     gc.enable()
 
             elapsed = end - start
-            ns_out(out, fn.__name__, elapsed)
-            logger(f'{input_formatter(fn.__name__, *args, **kwargs)} -> total time: {time_formatter(elapsed)}')
+            fn_name = fn.__qualname__ if use_qualname else fn.__name__
+            ns_out(out, fn_name, elapsed)
+            logger(f'{input_formatter(fn_name, *args, **kwargs)} -> total time: {time_formatter(elapsed)}')
             if return_time:
                 return ret, elapsed
             return ret
