@@ -67,7 +67,6 @@ class Logger:
             logging.getLogger(self.logger_name).info(string)
 
 
-
 class InputFormatter:
     def __init__(self, show_args: bool = False, show_kwargs: bool = False, display_level: int = 1, sep: str = ', '):
         self.show_args = show_args

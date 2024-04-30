@@ -55,7 +55,8 @@ batched_euclidean_distance(CudaTensor[10000, 800], CudaTensor[12000, 800]) -> to
     * `file_path` (`str`): If not `None`, writes the measurement at the end of the given file path. For thread safe file writing configure use `logger_name` instead. Default: `None`.
     * `logger_name` (`str`): If not `None`, uses the given logger to print the measurement. Can't be used in conjunction with `file_path`. Default: `None`. See [Using a logger](#using-a-logger).
     * `return_time` (`bool`): If `True`, returns the elapsed time in addition to the wrapped function's return value. Default: `False`.
-    * `out` (`dict`): If not `None`, stores the elapsed time in nanoseconds in the given dict using the function name as key. If the key already exists, adds the time to the existing value. Default: `None`. See [Storing the elapsed time in a dict](#storing-the-elapsed-time-in-a-dict).
+    * `out` (`dict`): If not `None`, stores the elapsed time in nanoseconds in the given dict using the fully qualified function name as key.  If the key already exists, adds the time to the existing value. Default: `None`. See [Storing the elapsed time in a dict](#storing-the-elapsed-time-in-a-dict).
+    * `use_qualname` (`bool`): If `True`, If `True`, uses the qualified name of the function when logging the elapsed time. Default: `False`.
 
 2. `nested_timed` is similar to `timed`, however it is designed to work nicely with multiple timed functions that call each other, displaying both the total execution time and the difference after subtracting other timed functions on the same call stack. See [Nested timing decorator](#nested-timing-decorator).
 
@@ -280,6 +281,19 @@ numpy_operation(
     inplace=True
 )
 # numpy_operation([array([[0.74500602, 0.70666224, 0.83888559]])], [[0.74579988 0.51878032 0.06419635]], ('weights', '[0.0]'), ('inplace', 'True')) -> total time: 185300ns
+```
+
+Using the fully qualified name for timing. 
+
+```py
+from time import sleep
+from timed_decorator.simple_timed import timed
+class ClassA:
+    @timed(use_qualname=True)
+    def wait(self, x):
+        sleep(x)
+ClassA().wait(0.1)
+# ClassA.wait() -> total time: 100943000ns
 ```
 
 ### Nested timing decorator

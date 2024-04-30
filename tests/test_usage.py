@@ -65,7 +65,7 @@ class UsageTest(unittest.TestCase):
 
         @timed(file_path=filename, stdout=False)
         def fn():
-            sleep(0.5)
+            sleep(0.1)
 
         try:
             fn()
@@ -87,28 +87,47 @@ class UsageTest(unittest.TestCase):
         logging.getLogger(logger_name).addHandler(log_handler)
 
         @timed(logger_name=logger_name, stdout=False)
-        def fn():
-            sleep(0.5)
+        def fn_1():
+            sleep(0.1)
 
-        fn()
-        fn()
+        fn_1()
+
+        @timed(logger_name=logger_name, stdout=False, use_qualname=True)
+        def fn_2():
+            sleep(0.1)
+
+        fn_2()
 
         logged = log_stream.getvalue().split('\n')[:-1]
         self.assertEqual(len(logged), 2)
-        self.assertIn(fn.__name__, logged[0])
-        self.assertIn(fn.__name__, logged[1])
+        self.assertIn(fn_1.__name__, logged[0])
+        self.assertNotIn(fn_1.__qualname__, logged[0])
+        self.assertIn(fn_2.__name__, logged[1])
+        self.assertIn(fn_2.__qualname__, logged[1])
 
     def test_ns_output(self):
-        ns = {}
+        out = {}
 
-        @timed(out=ns, stdout=False)
+        @timed(out=out, stdout=False)
         def fn():
-            sleep(0.5)
+            sleep(0.1)
 
         fn()
 
-        self.assertIsInstance(ns[fn.__name__], int)
-        self.assertGreater(ns[fn.__name__], 1 ** 9 / 2)
+        self.assertIsInstance(out[fn.__qualname__], int)
+        self.assertGreater(out[fn.__qualname__], 1e+8)
+
+    def test_qualname(self):
+        out = {}
+
+        class ClassA:
+            @timed(out=out)
+            def wait(self, x):
+                sleep(x)
+
+        ClassA().wait(0.1)
+        key = next(iter(out.keys()))
+        self.assertIn(ClassA.__name__, key)
 
     def test_return_time(self):
         seconds = 0.1
