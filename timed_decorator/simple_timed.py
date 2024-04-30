@@ -46,10 +46,10 @@ def timed(collect_gc: bool = True,
             with `file_path`. Default: `None`.
         return_time (bool): If `True`, returns the elapsed time in addition to the wrapped function's return value.
             Default: `False`.
-        out (dict): If not `None`, stores the elapsed time in nanoseconds in the given dict using the function name as
-            key. If the key already exists, adds the time to the existing value. Default: `None`.
-        use_qualname (bool): If `True`, uses the qualified name of the function in all scenarios when the name is used.
-            The qualified name is also used as the key to the `out` parameter. Default: `False`.
+        out (dict): If not `None`, stores the elapsed time in nanoseconds in the given dict using the fully qualified
+            function name as key. If the key already exists, adds the time to the existing value. Default: `None`.
+        use_qualname (bool): If `True`, uses the qualified name of the function when logging the elapsed time. Default:
+            `False`.
     """
     gc_collect = collect if collect_gc else nop
     time_formatter = TimeFormatter(use_seconds, precision)
