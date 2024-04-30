@@ -1,5 +1,9 @@
 # timed-decorator
 
+Simple and configurable timing decorator with little overhead that can be easily attached to python functions to measure their execution time.
+Can easily display parameter types and lengths if available and is compatible with NumPy ndarrays, Pandas DataFrames and PyTorch tensors.
+
+
 ## Installation
 
 ```
@@ -10,34 +14,22 @@ pip install --upgrade timed-decorator
 
 Attach it to the function you want to time and run the application. 
 
-```py
-import torch
-from torch import Tensor
 
+```py
 from timed_decorator.simple_timed import timed
 
 
-@timed(show_args=True)
-def batched_euclidean_distance(x: Tensor, y: Tensor) -> Tensor:
-    diff = x @ y.T
-    x_squared = (x ** 2).sum(dim=1)
-    y_squared = (b ** 2).sum(dim=1)
-    return x_squared.unsqueeze(-1) + y_squared.unsqueeze(0) - 2 * diff
+@timed()
+def fibonacci(n: int) -> int:
+    assert n > 0
+    a, b = 0, 1
+    for _ in range(n):
+        a, b = b, a + b
+    return a
 
 
-a = torch.rand((10000, 800))
-b = torch.rand((12000, 800))
-batched_euclidean_distance(a, b)
-
-if torch.cuda.is_available():
-    a = a.cuda()
-    b = b.cuda()
-    batched_euclidean_distance(a, b)  # Cuda device is synchronized if function arguments are on device.
-```
-Prints:
-```
-batched_euclidean_distance(CpuTensor[10000, 800], CpuTensor[12000, 800]) -> total time: 685659400ns
-batched_euclidean_distance(CudaTensor[10000, 800], CudaTensor[12000, 800]) -> total time: 260411900ns
+fibonacci(10000)
+# fibonacci() -> total time: 1114100ns
 ```
 
 ### Documentation
@@ -409,4 +401,38 @@ Prints
 ```
 {'fn': 1000767300}
 {'fn': 2001006100}
+```
+
+### Compatible with PyTorch tensors
+
+Synchronizes cuda device when cuda tensors are passed as function parameters.
+
+```py
+import torch
+from torch import Tensor
+
+from timed_decorator.simple_timed import timed
+
+
+@timed(show_args=True)
+def batched_euclidean_distance(x: Tensor, y: Tensor) -> Tensor:
+    diff = x @ y.T
+    x_squared = (x ** 2).sum(dim=1)
+    y_squared = (b ** 2).sum(dim=1)
+    return x_squared.unsqueeze(-1) + y_squared.unsqueeze(0) - 2 * diff
+
+
+a = torch.rand((10000, 800))
+b = torch.rand((12000, 800))
+batched_euclidean_distance(a, b)
+
+if torch.cuda.is_available():
+    a = a.cuda()
+    b = b.cuda()
+    batched_euclidean_distance(a, b)  # Cuda device is synchronized if function arguments are on device.
+```
+Prints:
+```
+batched_euclidean_distance(CpuTensor[10000, 800], CpuTensor[12000, 800]) -> total time: 685659400ns
+batched_euclidean_distance(CudaTensor[10000, 800], CudaTensor[12000, 800]) -> total time: 260411900ns
 ```
