@@ -1,6 +1,6 @@
 # timed-decorator
 
-Simple and configurable timing decorator with little overhead that can be easily attached to python functions to measure their execution time.
+Simple and configurable timing decorator with little overhead that can be attached to python functions to measure their execution time.
 Can easily display parameter types and lengths if available and is compatible with NumPy ndarrays, Pandas DataFrames and PyTorch tensors.
 
 
