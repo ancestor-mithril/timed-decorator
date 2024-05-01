@@ -8,7 +8,7 @@ _timed_decorators = {}
 
 
 def create_timed_decorator(name: str,
-                           nested: bool = True,
+                           nested: bool = False,
                            collect_gc: bool = True,
                            disable_gc: bool = False,
                            use_seconds: bool = False,
@@ -31,7 +31,7 @@ def create_timed_decorator(name: str,
         name (str): The name of the timed decorator which will be instantiated using the provided arguments. Use this
             name for retrieving the timed decorator with :class:`timed_decorator.builder.get_timed_decorator`.
         nested (bool): If `True`, uses the :class:`timed_decorator.nested_timed.nested_timed` as decorator, otherwise
-            uses :class:`timed_decorator.simple_timed.timed`.
+            uses :class:`timed_decorator.simple_timed.timed`. Default: `False`.
 
     See Also:
         :class:`timed_decorator.simple_timed.timed` for the remaining parameters' documentation.

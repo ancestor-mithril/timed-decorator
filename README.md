@@ -32,6 +32,8 @@ fibonacci(10000)
 # fibonacci() -> total time: 1114100ns
 ```
 
+For more advanced usage, consider registering a timed decorator and using it afterward through your codebase. See [Registering a timed decorator](#registering-a-timed-decorator).
+
 ### Documentation
 
 1. `timed`
@@ -51,6 +53,15 @@ fibonacci(10000)
     * `use_qualname` (`bool`): If `True`, If `True`, uses the qualified name of the function when logging the elapsed time. Default: `False`.
 
 2. `nested_timed` is similar to `timed`, however it is designed to work nicely with multiple timed functions that call each other, displaying both the total execution time and the difference after subtracting other timed functions on the same call stack. See [Nested timing decorator](#nested-timing-decorator).
+
+3. `create_timed_decorator` registers a timed decorator with a given name.
+   * `name` (`str`): The name of the timed decorator which will be instantiated using the provided arguments. Use this name for retrieving the timed decorator with `timed_decorator.builder.get_timed_decorator`.
+   * `nested` (`bool`): If `True`, uses the `timed_decorator.nested_timed.nested_timed` as decorator, otherwise uses `timed_decorator.simple_timed.timed`. Default: `False`.
+   * Also receives all the other arguments accepted by `timed` and `nested_timed`.
+
+4. `get_timed_decorator` wraps the decorated function and lazily measures its elapsed time using the registered timed decorator. The timer can be registered after the function definition, but must be registered before the first function call.
+   * `name` (`str`): The name of the timed decorator registered using `timed_decorator.builder.create_timed_decorator`.
+
 
 ### Examples
 
@@ -435,4 +446,94 @@ Prints:
 ```
 batched_euclidean_distance(CpuTensor[10000, 800], CpuTensor[12000, 800]) -> total time: 685659400ns
 batched_euclidean_distance(CudaTensor[10000, 800], CudaTensor[12000, 800]) -> total time: 260411900ns
+```
+
+
+### Registering a timed decorator
+
+```py
+from time import sleep
+
+from timed_decorator.builder import create_timed_decorator, get_timed_decorator
+
+
+@get_timed_decorator("MyCustomTimer")
+def main():
+    @get_timed_decorator("MyCustomTimer")
+    def function_1():
+        sleep(0.1)
+
+    @get_timed_decorator("MyCustomTimer")
+    def nested_function():
+        @get_timed_decorator("MyCustomTimer")
+        def function_2():
+            sleep(0.2)
+
+        @get_timed_decorator("MyCustomTimer")
+        def function_3():
+            sleep(0.3)
+
+        function_2()
+        function_2()
+        function_3()
+
+    nested_function()
+    function_1()
+    nested_function()
+    function_1()
+
+
+if __name__ == '__main__':
+    my_measurements = {}
+    create_timed_decorator("MyCustomTimer",
+                           collect_gc=False,  # I don't want to explicitly collect garbage
+                           disable_gc=True,  # I don't want to wait for garbage collection during measuring
+                           stdout=False,  # I don't wat to print stuff to console
+                           out=my_measurements  # My measurements dict
+                           )
+    main()
+    for key, value in my_measurements.items():
+        print(f'Function {key} took {value / 1e+9}s')
+    print()
+    print()
+
+    # Now I can do stuff with my measurements.
+    functions = sorted(my_measurements.keys(), reverse=True)
+
+    for i in range(len(functions)):
+        fn_1 = functions[i]
+        print(f'Function {fn_1}:')
+        for j in range(i + 1, len(functions)):
+            fn_2 = functions[j]
+            if fn_1.startswith(fn_2):
+                ratio = my_measurements[fn_1] / my_measurements[fn_2] * 100
+                print(f'* took {ratio:.2f}% from {fn_2}')
+        print()
+```
+
+Prints:
+```
+Function main.<locals>.nested_function.<locals>.function_2 took 0.8016428s
+Function main.<locals>.nested_function.<locals>.function_3 took 0.6014647s
+Function main.<locals>.nested_function took 1.403586s
+Function main.<locals>.function_1 took 0.2006981s
+Function main took 1.6045189s
+
+
+Function main.<locals>.nested_function.<locals>.function_3:
+* took 42.85% from main.<locals>.nested_function
+* took 37.49% from main
+
+Function main.<locals>.nested_function.<locals>.function_2:
+* took 57.11% from main.<locals>.nested_function
+* took 49.96% from main
+
+Function main.<locals>.nested_function:
+* took 87.48% from main
+
+Function main.<locals>.function_1:
+* took 12.51% from main
+
+Function main:
+
 ```
