@@ -5,6 +5,7 @@ from io import StringIO
 from time import sleep
 
 from tests.functions import fibonacci, recursive_fibonacci
+from timed_decorator.builder import create_timed_decorator, get_timed_decorator
 from timed_decorator.nested_timed import nested_timed
 from timed_decorator.simple_timed import timed
 from timed_decorator.utils import build_decorated_fn
@@ -140,6 +141,21 @@ class UsageTest(unittest.TestCase):
 
         self.assertIsInstance(elapsed, int)
         self.assertGreater(elapsed / 1e+9, seconds)
+
+    def test_create_timed_decorator(self):
+        create_timed_decorator('same name')
+        self.assertRaises(KeyError, create_timed_decorator, 'same name')
+        create_timed_decorator('other name')
+
+        get_timed_decorator('same name')(fibonacci)(10000)
+        get_timed_decorator('other name')(fibonacci)(10000)
+        fn = get_timed_decorator('no name')(fibonacci)  # Does not raise error if not called
+        self.assertRaises(KeyError, fn, 10000)
+
+        # Defer instantiation
+        fn = get_timed_decorator('lazy name')(fibonacci)
+        create_timed_decorator('lazy name')
+        fn(10000)
 
 
 if __name__ == '__main__':
