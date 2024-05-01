@@ -25,7 +25,8 @@ keywords = [
 ]
 
 [project.urls]
-repository = "https://github.com/ancestor-mithril/timed-decorator"
+Repository = "https://github.com/ancestor-mithril/timed-decorator"
+Issues = "https://github.com/ancestor-mithril/timed-decorator/issues"
 
 [project.optional-dependencies]
 dev = [
