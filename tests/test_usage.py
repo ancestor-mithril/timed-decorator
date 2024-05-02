@@ -106,7 +106,7 @@ class UsageTest(unittest.TestCase):
         self.assertIn(fn_2.__name__, logged[1])
         self.assertIn(fn_2.__qualname__, logged[1])
 
-    def test_ns_output(self):
+    def test_dict_output(self):
         out = {}
 
         @timed(out=out, stdout=False)
@@ -115,8 +115,38 @@ class UsageTest(unittest.TestCase):
 
         fn()
 
-        self.assertIsInstance(out[fn.__qualname__], int)
-        self.assertGreater(out[fn.__qualname__], 1e+8)
+        counts, elapsed, own_time = out[fn.__qualname__]
+        self.assertEqual(counts, 1)
+        self.assertIsInstance(elapsed, int)
+        self.assertGreater(elapsed, 1e+8)
+        self.assertEqual(elapsed, own_time)
+
+        fn()
+        counts, elapsed, own_time = out[fn.__qualname__]
+        self.assertEqual(counts, 2)
+        self.assertIsInstance(elapsed, int)
+        self.assertGreater(elapsed, 2e+8)
+        self.assertEqual(elapsed, own_time)
+
+    def test_dict_output_with_nested_timed(self):
+        out = {}
+
+        @nested_timed(out=out, stdout=False)
+        def fn1():
+            @nested_timed(out=out, stdout=False)
+            def fn2():
+                sleep(0.1)
+
+            fn2()
+
+        fn1()
+
+        counts_1, elapsed_1, own_time_1 = out[fn1.__qualname__]
+        counts_2, elapsed_2, own_time_2 = out[fn1.__qualname__ + '.<locals>.fn2']
+
+        self.assertTrue(counts_1 == counts_2 == 1)
+        self.assertEqual(own_time_2, elapsed_2)
+        self.assertGreater(elapsed_1, own_time_1)
 
     def test_qualname(self):
         out = {}

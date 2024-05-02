@@ -4,7 +4,7 @@ from gc import collect
 from time import perf_counter_ns
 from typing import Union
 
-from .utils import nop, TimeFormatter, InputFormatter, synchronize_cuda, Logger, write_mutable
+from .utils import nop, TimeFormatter, InputFormatter, synchronize_cuda, Logger, update_timing_dict
 
 
 def timed(collect_gc: bool = True,
@@ -47,7 +47,11 @@ def timed(collect_gc: bool = True,
         return_time (bool): If `True`, returns the elapsed time in addition to the wrapped function's return value.
             Default: `False`.
         out (dict): If not `None`, stores the elapsed time in nanoseconds in the given dict using the fully qualified
-            function name as key. If the key already exists, adds the time to the existing value. Default: `None`.
+            function name as key, in the following format: (function call counts, total elapsed time, total "own time").
+            If the key already exists, updates the existing value. The elapsed time is equal to "own time" for the simple
+            timed decorator. For the nested time decorator, the elapsed time is different from "own time" only when
+            another function decorated with a nested timer is called during the execution of the current function.
+            Default: `None`.
         use_qualname (bool): If `True`, uses the qualified name of the function when logging the elapsed time. Default:
             `False`.
     """
@@ -55,7 +59,7 @@ def timed(collect_gc: bool = True,
     time_formatter = TimeFormatter(use_seconds, precision)
     input_formatter = InputFormatter(show_args, show_kwargs, display_level, sep)
     logger = Logger(stdout, file_path, logger_name)
-    ns_out = write_mutable if out is not None else nop
+    update_dict = update_timing_dict if out is not None else nop
 
     def decorator(fn):
         @wraps(fn)
@@ -75,7 +79,7 @@ def timed(collect_gc: bool = True,
 
             elapsed = end - start
             fn_name = fn.__qualname__ if use_qualname else fn.__name__
-            ns_out(out, fn.__qualname__, elapsed)
+            update_dict(out, fn.__qualname__, elapsed, elapsed)
             logger(f'{input_formatter(fn_name, *args, **kwargs)} -> total time: {time_formatter(elapsed)}')
             if return_time:
                 return ret, elapsed
