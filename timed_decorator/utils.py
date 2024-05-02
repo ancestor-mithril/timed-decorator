@@ -139,5 +139,6 @@ def synchronize_cuda(*args, **kwargs):
         torch.cuda.synchronize(device)
 
 
-def write_mutable(out: dict, key: str, value: int):
-    out[key] = out.get(key, 0) + value
+def update_timing_dict(out: dict, key: str, elapsed: int, own_time: int):
+    counts, elapsed_total, own_time_total = out.get(key, (0, 0, 0))
+    out[key] = [counts + 1, elapsed_total + elapsed, own_time_total + own_time]

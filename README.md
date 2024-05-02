@@ -49,7 +49,7 @@ For more advanced usage, consider registering a timed decorator and using it aft
     * `file_path` (`str`): If not `None`, writes the measurement at the end of the given file path. For thread safe file writing configure use `logger_name` instead. Default: `None`.
     * `logger_name` (`str`): If not `None`, uses the given logger to print the measurement. Can't be used in conjunction with `file_path`. Default: `None`. See [Using a logger](#using-a-logger).
     * `return_time` (`bool`): If `True`, returns the elapsed time in addition to the wrapped function's return value. Default: `False`.
-    * `out` (`dict`): If not `None`, stores the elapsed time in nanoseconds in the given dict using the fully qualified function name as key.  If the key already exists, adds the time to the existing value. Default: `None`. See [Storing the elapsed time in a dict](#storing-the-elapsed-time-in-a-dict).
+    * `out` (`dict`): If not `None`, stores the elapsed time in nanoseconds in the given dict using the fully qualified function name as key, in the following format: (function call counts, total elapsed time, total "own time"). If the key already exists, updates the existing value. The elapsed time is equal to "own time" for the simple timed decorator. For the nested time decorator, the elapsed time is different from "own time" only when another function decorated with a nested timer is called during the execution of the current function. Default: `None`. See [Storing the elapsed time in a dict](#storing-the-elapsed-time-in-a-dict).
     * `use_qualname` (`bool`): If `True`, If `True`, uses the qualified name of the function when logging the elapsed time. Default: `False`.
 
 2. `nested_timed` is similar to `timed`, however it is designed to work nicely with multiple timed functions that call each other, displaying both the total execution time and the difference after subtracting other timed functions on the same call stack. See [Nested timing decorator](#nested-timing-decorator).
@@ -410,8 +410,8 @@ print(ns)
 ```
 Prints
 ```
-{'fn': 1000767300}
-{'fn': 2001006100}
+{'fn': [1, 1000672000, 1000672000]}
+{'fn': [2, 2001306900, 2001306900]}
 ```
 
 ### Compatible with PyTorch tensors
@@ -486,15 +486,15 @@ def main():
 if __name__ == '__main__':
     my_measurements = {}
     create_timed_decorator("MyCustomTimer",
+                           nested=False,  # This is true by default
                            collect_gc=False,  # I don't want to explicitly collect garbage
                            disable_gc=True,  # I don't want to wait for garbage collection during measuring
                            stdout=False,  # I don't wat to print stuff to console
                            out=my_measurements  # My measurements dict
                            )
     main()
-    for key, value in my_measurements.items():
-        print(f'Function {key} took {value / 1e+9}s')
-    print()
+    for key, (counts, elapsed, own_time) in my_measurements.items():
+        print(f'Function {key} was called {counts} time(s) and took {elapsed / 1e+9}s')
     print()
 
     # Now I can do stuff with my measurements.
@@ -506,30 +506,31 @@ if __name__ == '__main__':
         for j in range(i + 1, len(functions)):
             fn_2 = functions[j]
             if fn_1.startswith(fn_2):
-                ratio = my_measurements[fn_1] / my_measurements[fn_2] * 100
+                _, elapsed_1, _ = my_measurements[fn_1]
+                _, elapsed_2, _ = my_measurements[fn_2]
+                ratio = elapsed_1 / elapsed_2 * 100
                 print(f'* took {ratio:.2f}% from {fn_2}')
         print()
 ```
 
 Prints:
 ```
-Function main.<locals>.nested_function.<locals>.function_2 took 0.8016428s
-Function main.<locals>.nested_function.<locals>.function_3 took 0.6014647s
-Function main.<locals>.nested_function took 1.403586s
-Function main.<locals>.function_1 took 0.2006981s
-Function main took 1.6045189s
-
+Function main.<locals>.nested_function.<locals>.function_2 was called 4 time(s) and took 0.8019482s
+Function main.<locals>.nested_function.<locals>.function_3 was called 2 time(s) and took 0.6010157s
+Function main.<locals>.nested_function was called 2 time(s) and took 1.403365s
+Function main.<locals>.function_1 was called 2 time(s) and took 0.2007625s
+Function main was called 1 time(s) and took 1.6043592s
 
 Function main.<locals>.nested_function.<locals>.function_3:
-* took 42.85% from main.<locals>.nested_function
-* took 37.49% from main
+* took 42.83% from main.<locals>.nested_function
+* took 37.46% from main
 
 Function main.<locals>.nested_function.<locals>.function_2:
-* took 57.11% from main.<locals>.nested_function
-* took 49.96% from main
+* took 57.14% from main.<locals>.nested_function
+* took 49.99% from main
 
 Function main.<locals>.nested_function:
-* took 87.48% from main
+* took 87.47% from main
 
 Function main.<locals>.function_1:
 * took 12.51% from main

@@ -4,7 +4,7 @@ from gc import collect
 from time import perf_counter_ns
 from typing import Union
 
-from .utils import nop, TimeFormatter, InputFormatter, synchronize_cuda, Logger, write_mutable
+from .utils import nop, TimeFormatter, InputFormatter, synchronize_cuda, Logger, update_timing_dict
 
 nested_level = 0
 nested_times = dict()
@@ -35,7 +35,7 @@ def nested_timed(collect_gc: bool = True,
     time_formatter = TimeFormatter(use_seconds, precision)
     input_formatter = InputFormatter(show_args, show_kwargs, display_level, sep)
     logger = Logger(stdout, file_path, logger_name)
-    ns_out = write_mutable if out is not None else nop
+    update_dict = update_timing_dict if out is not None else nop
 
     def decorator(fn):
         @wraps(fn)
@@ -75,7 +75,7 @@ def nested_timed(collect_gc: bool = True,
                 nested_times[nested_level].append(elapsed)
 
             fn_name = fn.__qualname__ if use_qualname else fn.__name__
-            ns_out(out, fn.__qualname__, elapsed)
+            update_dict(out, fn.__qualname__, elapsed, own_time)
             logger('\t' * nested_level + f'{input_formatter(fn_name, *args, **kwargs)} '
                                          f'-> total time: {time_formatter(elapsed)}, '
                                          f'own time: {time_formatter(own_time)}')
