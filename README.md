@@ -54,12 +54,14 @@ For more advanced usage, consider registering a timed decorator and using it aft
 
 2. `nested_timed` is similar to `timed`, however it is designed to work nicely with multiple timed functions that call each other, displaying both the total execution time and the difference after subtracting other timed functions on the same call stack. See [Nested timing decorator](#nested-timing-decorator).
 
-3. `create_timed_decorator` registers a timed decorator with a given name.
+3. `create_timed_decorator` registers a timed decorator with a given name. Can be enabled or disabled during creation.
    * `name` (`str`): The name of the timed decorator which will be instantiated using the provided arguments. Use this name for retrieving the timed decorator with `timed_decorator.builder.get_timed_decorator`.
    * `nested` (`bool`): If `True`, uses the `timed_decorator.nested_timed.nested_timed` as decorator, otherwise uses `timed_decorator.simple_timed.timed`. Default: `False`.
+   * `enabled` (`bool`): If `True`, the timed decorator is enabled and used for timing decorated functions. Otherwise, functions decorated with `name` will not be timed. Default: `True`.
    * Also receives all the other arguments accepted by `timed` and `nested_timed`.
 
-4. `get_timed_decorator` wraps the decorated function and lazily measures its elapsed time using the registered timed decorator. The timer can be registered after the function definition, but must be registered before the first function call.
+4. `get_timed_decorator` wraps the decorated function and lazily measures its elapsed time using the registered timed decorator. The timer can be registered after the function definition, but must be registered before the first function call. If the timer is disabled, the elapsed time will not be measured.
+
    * `name` (`str`): The name of the timed decorator registered using `timed_decorator.builder.create_timed_decorator`.
 
 
