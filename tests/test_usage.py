@@ -187,6 +187,17 @@ class UsageTest(unittest.TestCase):
         create_timed_decorator('lazy name')
         fn(10000)
 
+    def test_create_disabled_timed_decorator(self):
+        out = {}
+        create_timed_decorator('disabled', enabled=False, out=out)
+        get_timed_decorator('disabled')(fibonacci)(10000)
+
+        create_timed_decorator('enabled', enabled=True, out=out)
+        get_timed_decorator('enabled')(recursive_fibonacci)(30)
+
+        self.assertNotIn(fibonacci.__qualname__, out)
+        self.assertIn(recursive_fibonacci.__qualname__, out)
+
 
 if __name__ == '__main__':
     unittest.main()

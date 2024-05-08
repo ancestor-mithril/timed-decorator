@@ -9,6 +9,7 @@ _timed_decorators = {}
 
 def create_timed_decorator(name: str,
                            nested: bool = False,
+                           enabled: bool = True,
                            collect_gc: bool = True,
                            disable_gc: bool = False,
                            use_seconds: bool = False,
@@ -25,13 +26,16 @@ def create_timed_decorator(name: str,
                            use_qualname: bool = False):
     """
     Registers a timed decorator with a given name. Once instantiated, the timed decorator can be retrieved with
-    :class:`timed_decorator.builder.get_timed_decorator` and used for measuring the runtime of decorated functions.
+    :class:`timed_decorator.builder.get_timed_decorator` and used for measuring the runtime of decorated functions if
+    enabled.
 
     Args:
         name (str): The name of the timed decorator which will be instantiated using the provided arguments. Use this
             name for retrieving the timed decorator with :class:`timed_decorator.builder.get_timed_decorator`.
         nested (bool): If `True`, uses the :class:`timed_decorator.nested_timed.nested_timed` as decorator, otherwise
             uses :class:`timed_decorator.simple_timed.timed`. Default: `False`.
+        enabled (bool): If `True`, the timed decorator is enabled and used for timing decorated functions. Otherwise,
+            functions decorated with `name` will not be timed. Default: `True`.
 
     See Also:
         :class:`timed_decorator.simple_timed.timed` for the remaining parameters' documentation.
@@ -42,20 +46,21 @@ def create_timed_decorator(name: str,
         raise KeyError(f'Timed decorator {name} already registered.')
 
     decorator = nested_timed if nested else timed
-    _timed_decorators[name] = decorator(collect_gc=collect_gc,
-                                        disable_gc=disable_gc,
-                                        use_seconds=use_seconds,
-                                        precision=precision,
-                                        show_args=show_args,
-                                        show_kwargs=show_kwargs,
-                                        display_level=display_level,
-                                        sep=sep,
-                                        stdout=stdout,
-                                        file_path=file_path,
-                                        logger_name=logger_name,
-                                        return_time=return_time,
-                                        out=out,
-                                        use_qualname=use_qualname)
+    timer = decorator(collect_gc=collect_gc,
+                      disable_gc=disable_gc,
+                      use_seconds=use_seconds,
+                      precision=precision,
+                      show_args=show_args,
+                      show_kwargs=show_kwargs,
+                      display_level=display_level,
+                      sep=sep,
+                      stdout=stdout,
+                      file_path=file_path,
+                      logger_name=logger_name,
+                      return_time=return_time,
+                      out=out,
+                      use_qualname=use_qualname)
+    _timed_decorators[name] = (timer, enabled)
 
 
 def _get_timed_decorator(name: str):
@@ -70,17 +75,22 @@ def _get_timed_decorator(name: str):
 def get_timed_decorator(name: str):
     """
     Wraps the decorated function and lazily measures its elapsed time using the registered timed decorator. The timer
-    can be registered after the function definition, but must be registered before the first function call.
+    can be registered after the function definition, but must be registered before the first function call. If the timer
+    is disabled, the elapsed time will not be measured.
 
     Args:
         name (str): The name of the timed decorator registered using
             :class:`timed_decorator.builder.create_timed_decorator`.
 
     """
+
     def decorator(fn):
         @wraps(fn)
         def wrap(*args, **kwargs):
-            return _get_timed_decorator(name)(fn)(*args, **kwargs)
+            timer, enabled = _get_timed_decorator(name)
+            if enabled:
+                return timer(fn)(*args, **kwargs)
+            return fn(*args, **kwargs)
 
         return wrap
 
