@@ -4,7 +4,8 @@ from gc import collect
 from time import perf_counter_ns
 from typing import Union
 
-from .utils import nop, TimeFormatter, InputFormatter, synchronize_cuda, Logger, update_timing_dict
+from .utils import nop, TimeFormatter, InputFormatter, synchronize_cuda, Logger, update_timing_dict, get_fn_qualname, \
+    get_fn_name
 
 
 def timed(collect_gc: bool = True,
@@ -78,8 +79,8 @@ def timed(collect_gc: bool = True,
                     gc.enable()
 
             elapsed = end - start
-            fn_name = fn.__qualname__ if use_qualname else fn.__name__
-            update_dict(out, fn.__qualname__, elapsed, elapsed)
+            fn_name = get_fn_qualname(fn) if use_qualname else get_fn_name(fn)
+            update_dict(out, get_fn_qualname(fn), elapsed, elapsed)
             logger(f'{input_formatter(fn_name, *args, **kwargs)} -> total time: {time_formatter(elapsed)}')
             if return_time:
                 return ret, elapsed

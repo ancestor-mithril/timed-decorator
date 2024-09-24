@@ -4,7 +4,8 @@ from gc import collect
 from time import perf_counter_ns
 from typing import Union
 
-from .utils import nop, TimeFormatter, InputFormatter, synchronize_cuda, Logger, update_timing_dict
+from .utils import nop, TimeFormatter, InputFormatter, synchronize_cuda, Logger, update_timing_dict, get_fn_name, \
+    get_fn_qualname
 
 nested_level = 0
 nested_times = dict()
@@ -74,8 +75,8 @@ def nested_timed(collect_gc: bool = True,
                     nested_times[nested_level] = []
                 nested_times[nested_level].append(elapsed)
 
-            fn_name = fn.__qualname__ if use_qualname else fn.__name__
-            update_dict(out, fn.__qualname__, elapsed, own_time)
+            fn_name = get_fn_qualname(fn) if use_qualname else get_fn_name(fn)
+            update_dict(out, get_fn_qualname(fn), elapsed, own_time)
             logger('\t' * nested_level + f'{input_formatter(fn_name, *args, **kwargs)} '
                                          f'-> total time: {time_formatter(elapsed)}, '
                                          f'own time: {time_formatter(own_time)}')

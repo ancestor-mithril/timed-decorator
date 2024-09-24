@@ -14,6 +14,7 @@ except ModuleNotFoundError:
     class DataFrame:
         pass
 
+
     class Series:
         pass
 try:
@@ -22,6 +23,7 @@ try:
 except ModuleNotFoundError:
     class Tensor:
         pass
+
 
     torch = None
 
@@ -142,3 +144,15 @@ def synchronize_cuda(*args, **kwargs):
 def update_timing_dict(out: dict, key: str, elapsed: int, own_time: int):
     counts, elapsed_total, own_time_total = out.get(key, (0, 0, 0))
     out[key] = [counts + 1, elapsed_total + elapsed, own_time_total + own_time]
+
+
+def get_fn_name(fn):
+    if hasattr(fn, 'name'):  # torch.jit.ScriptFunction uses name instead of __name__
+        return fn.name
+    return fn.__name__
+
+
+def get_fn_qualname(fn):
+    if hasattr(fn, 'qualified_name'):  # torch.jit.ScriptFunction uses qualified_name instead of __qualname__
+        return fn.qualified_name
+    return fn.__qualname__
