@@ -26,10 +26,14 @@ class UsageTest(unittest.TestCase):
         fn = build_decorated_fn(recursive_fibonacci, timed, collect_gc=False)
         fn(30)
 
-        fn = build_decorated_fn(recursive_fibonacci, timed, collect_gc=False, use_seconds=True)
+        fn = build_decorated_fn(
+            recursive_fibonacci, timed, collect_gc=False, use_seconds=True
+        )
         fn(30)
 
-        fn = build_decorated_fn(recursive_fibonacci, timed, collect_gc=False, use_seconds=True, precision=5)
+        fn = build_decorated_fn(
+            recursive_fibonacci, timed, collect_gc=False, use_seconds=True, precision=5
+        )
         fn(30)
 
         fn = build_decorated_fn(fibonacci, timed, show_args=True, display_level=0)
@@ -62,7 +66,7 @@ class UsageTest(unittest.TestCase):
         nested_fn()
 
     def test_file_usage(self):
-        filename = 'file.txt'
+        filename = "file.txt"
 
         @timed(file_path=filename, stdout=False)
         def fn():
@@ -71,7 +75,7 @@ class UsageTest(unittest.TestCase):
         try:
             fn()
             fn()
-            with open(filename, 'r') as f:
+            with open(filename, "r") as f:
                 lines = f.readlines()
                 self.assertEqual(len(lines), 2)
                 for line in lines:
@@ -81,7 +85,7 @@ class UsageTest(unittest.TestCase):
                 os.remove(filename)
 
     def test_logger_usage(self):
-        logger_name = 'TEST_LOGGER'
+        logger_name = "TEST_LOGGER"
         log_stream = StringIO()
         log_handler = logging.StreamHandler(log_stream)
         logging.root.setLevel(logging.NOTSET)
@@ -99,7 +103,7 @@ class UsageTest(unittest.TestCase):
 
         fn_2()
 
-        logged = log_stream.getvalue().split('\n')[:-1]
+        logged = log_stream.getvalue().split("\n")[:-1]
         self.assertEqual(len(logged), 2)
         self.assertIn(fn_1.__name__, logged[0])
         self.assertNotIn(fn_1.__qualname__, logged[0])
@@ -118,14 +122,14 @@ class UsageTest(unittest.TestCase):
         counts, elapsed, own_time = out[fn.__qualname__]
         self.assertEqual(counts, 1)
         self.assertIsInstance(elapsed, int)
-        self.assertGreater(elapsed, 1e+8)
+        self.assertGreater(elapsed, 1e8)
         self.assertEqual(elapsed, own_time)
 
         fn()
         counts, elapsed, own_time = out[fn.__qualname__]
         self.assertEqual(counts, 2)
         self.assertIsInstance(elapsed, int)
-        self.assertGreater(elapsed, 2e+8)
+        self.assertGreater(elapsed, 2e8)
         self.assertEqual(elapsed, own_time)
 
     def test_dict_output_with_nested_timed(self):
@@ -142,7 +146,7 @@ class UsageTest(unittest.TestCase):
         fn1()
 
         counts_1, elapsed_1, own_time_1 = out[fn1.__qualname__]
-        counts_2, elapsed_2, own_time_2 = out[fn1.__qualname__ + '.<locals>.fn2']
+        counts_2, elapsed_2, own_time_2 = out[fn1.__qualname__ + ".<locals>.fn2"]
 
         self.assertTrue(counts_1 == counts_2 == 1)
         self.assertEqual(own_time_2, elapsed_2)
@@ -170,34 +174,36 @@ class UsageTest(unittest.TestCase):
         _, elapsed = fn(seconds)
 
         self.assertIsInstance(elapsed, int)
-        self.assertGreater(elapsed / 1e+9, seconds)
+        self.assertGreater(elapsed / 1e9, seconds)
 
     def test_create_timed_decorator(self):
-        create_timed_decorator('same name')
-        self.assertRaises(KeyError, create_timed_decorator, 'same name')
-        create_timed_decorator('other name')
+        create_timed_decorator("same name")
+        self.assertRaises(KeyError, create_timed_decorator, "same name")
+        create_timed_decorator("other name")
 
-        get_timed_decorator('same name')(fibonacci)(10000)
-        get_timed_decorator('other name')(fibonacci)(10000)
-        fn = get_timed_decorator('no name')(fibonacci)  # Does not raise error if not called
+        get_timed_decorator("same name")(fibonacci)(10000)
+        get_timed_decorator("other name")(fibonacci)(10000)
+        fn = get_timed_decorator("no name")(
+            fibonacci
+        )  # Does not raise error if not called
         self.assertRaises(KeyError, fn, 10000)
 
         # Defer instantiation
-        fn = get_timed_decorator('lazy name')(fibonacci)
-        create_timed_decorator('lazy name')
+        fn = get_timed_decorator("lazy name")(fibonacci)
+        create_timed_decorator("lazy name")
         fn(10000)
 
     def test_create_disabled_timed_decorator(self):
         out = {}
-        create_timed_decorator('disabled', enabled=False, out=out)
-        get_timed_decorator('disabled')(fibonacci)(10000)
+        create_timed_decorator("disabled", enabled=False, out=out)
+        get_timed_decorator("disabled")(fibonacci)(10000)
 
-        create_timed_decorator('enabled', enabled=True, out=out)
-        get_timed_decorator('enabled')(recursive_fibonacci)(30)
+        create_timed_decorator("enabled", enabled=True, out=out)
+        get_timed_decorator("enabled")(recursive_fibonacci)(30)
 
         self.assertNotIn(fibonacci.__qualname__, out)
         self.assertIn(recursive_fibonacci.__qualname__, out)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -4,24 +4,34 @@ from gc import collect
 from time import perf_counter_ns
 from typing import Union
 
-from .utils import nop, TimeFormatter, InputFormatter, synchronize_cuda, Logger, update_timing_dict, get_fn_qualname, \
-    get_fn_name
+from .utils import (
+    nop,
+    TimeFormatter,
+    InputFormatter,
+    synchronize_cuda,
+    Logger,
+    update_timing_dict,
+    get_fn_name,
+    get_fn_qualname,
+)
 
 
-def timed(collect_gc: bool = True,
-          disable_gc: bool = False,
-          use_seconds: bool = False,
-          precision: int = 9,
-          show_args: bool = False,
-          show_kwargs: bool = False,
-          display_level: int = 1,
-          sep: str = ', ',
-          stdout: bool = True,
-          file_path: Union[str, None] = None,
-          logger_name: Union[str, None] = None,
-          return_time: bool = False,
-          out: dict = None,
-          use_qualname: bool = False):
+def timed(
+    collect_gc: bool = True,
+    disable_gc: bool = False,
+    use_seconds: bool = False,
+    precision: int = 9,
+    show_args: bool = False,
+    show_kwargs: bool = False,
+    display_level: int = 1,
+    sep: str = ", ",
+    stdout: bool = True,
+    file_path: Union[str, None] = None,
+    logger_name: Union[str, None] = None,
+    return_time: bool = False,
+    out: dict = None,
+    use_qualname: bool = False,
+):
     """
     A simple timing decorator that measures the time elapsed during the function call and prints it.
     It uses perf_counter_ns for measuring which includes time elapsed during sleep and is system-wide.
@@ -81,7 +91,9 @@ def timed(collect_gc: bool = True,
             elapsed = end - start
             fn_name = get_fn_qualname(fn) if use_qualname else get_fn_name(fn)
             update_dict(out, get_fn_qualname(fn), elapsed, elapsed)
-            logger(f'{input_formatter(fn_name, *args, **kwargs)} -> total time: {time_formatter(elapsed)}')
+            logger(
+                f"{input_formatter(fn_name, *args, **kwargs)} -> total time: {time_formatter(elapsed)}"
+            )
             if return_time:
                 return ret, elapsed
             return ret

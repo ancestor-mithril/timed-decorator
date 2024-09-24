@@ -14,7 +14,7 @@ def exp_plus_mean(x: Tensor) -> Tensor:
 
 class MyTestCase(unittest.TestCase):
     def setUp(self):
-        self.logger_name = 'TEST_LOGGER'
+        self.logger_name = "TEST_LOGGER"
         self.log_stream = StringIO()
         log_handler = logging.StreamHandler(self.log_stream)
         logging.root.setLevel(logging.NOTSET)
@@ -27,32 +27,32 @@ class MyTestCase(unittest.TestCase):
     def test_tensor_name(self):
         cpu_tensor = torch.rand((10, 50))
         self.do_tensor_op(cpu_tensor)
-        logged = self.log_stream.getvalue().split('\n')[0]
-        self.assertIn('CpuTensor[10, 50]', logged)
+        logged = self.log_stream.getvalue().split("\n")[0]
+        self.assertIn("CpuTensor[10, 50]", logged)
 
     def test_tensor_name_cuda(self):
         if torch.cuda.is_available():
-            cuda_tensor = torch.rand((10, 50), device='cuda:0')
+            cuda_tensor = torch.rand((10, 50), device="cuda:0")
             self.fn(cuda_tensor)
-            logged = self.log_stream.getvalue().split('\n')[0]
-            self.assertIn('CudaTensor[10, 50]', logged)
+            logged = self.log_stream.getvalue().split("\n")[0]
+            self.assertIn("CudaTensor[10, 50]", logged)
 
     def test_traced_fn(self):
         self.fn = torch.jit.trace(exp_plus_mean, example_inputs=torch.rand((10, 50)))
 
         cpu_tensor = torch.rand((10, 50))
         self.do_tensor_op(cpu_tensor)
-        logged = self.log_stream.getvalue().split('\n')[0]
-        self.assertIn('CpuTensor[10, 50]', logged)
+        logged = self.log_stream.getvalue().split("\n")[0]
+        self.assertIn("CpuTensor[10, 50]", logged)
 
     def test_scripted_fn(self):
         self.fn = torch.jit.script(exp_plus_mean)
 
         cpu_tensor = torch.rand((10, 50))
         self.do_tensor_op(cpu_tensor)
-        logged = self.log_stream.getvalue().split('\n')[0]
-        self.assertIn('CpuTensor[10, 50]', logged)
+        logged = self.log_stream.getvalue().split("\n")[0]
+        self.assertIn("CpuTensor[10, 50]", logged)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
