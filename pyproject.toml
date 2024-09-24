@@ -31,6 +31,7 @@ Issues = "https://github.com/ancestor-mithril/timed-decorator/issues"
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "flake8"
+    "flake8",
+    "torch"
 ]
 

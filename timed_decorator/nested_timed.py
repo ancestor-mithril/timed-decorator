@@ -11,6 +11,8 @@ from .utils import (
     synchronize_cuda,
     Logger,
     update_timing_dict,
+    get_fn_name,
+    get_fn_qualname,
 )
 
 nested_level = 0
@@ -83,8 +85,8 @@ def nested_timed(
                     nested_times[nested_level] = []
                 nested_times[nested_level].append(elapsed)
 
-            fn_name = fn.__qualname__ if use_qualname else fn.__name__
-            update_dict(out, fn.__qualname__, elapsed, own_time)
+            fn_name = get_fn_qualname(fn) if use_qualname else get_fn_name(fn)
+            update_dict(out, get_fn_qualname(fn), elapsed, own_time)
             logger(
                 "\t" * nested_level + f"{input_formatter(fn_name, *args, **kwargs)} "
                 f"-> total time: {time_formatter(elapsed)}, "

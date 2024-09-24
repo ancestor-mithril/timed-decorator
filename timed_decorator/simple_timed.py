@@ -11,6 +11,8 @@ from .utils import (
     synchronize_cuda,
     Logger,
     update_timing_dict,
+    get_fn_name,
+    get_fn_qualname,
 )
 
 
@@ -87,8 +89,8 @@ def timed(
                     gc.enable()
 
             elapsed = end - start
-            fn_name = fn.__qualname__ if use_qualname else fn.__name__
-            update_dict(out, fn.__qualname__, elapsed, elapsed)
+            fn_name = get_fn_qualname(fn) if use_qualname else get_fn_name(fn)
+            update_dict(out, get_fn_qualname(fn), elapsed, elapsed)
             logger(
                 f"{input_formatter(fn_name, *args, **kwargs)} -> total time: {time_formatter(elapsed)}"
             )
