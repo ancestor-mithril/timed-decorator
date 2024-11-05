@@ -7,10 +7,10 @@ description = "A timing decorator for python functions."
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
-    { name = "George Stoica", email = "george.stoica@senticlab.com" },
+    { name = "George Stoica", email = "" },
 ]
 maintainers = [
-    { name = "George Stoica", email = "george.stoica@senticlab.com" },
+    { name = "George Stoica", email = "" },
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
