@@ -33,7 +33,7 @@ class MyTestCase(unittest.TestCase):
     def test_tensor_name_cuda(self):
         if torch.cuda.is_available():
             cuda_tensor = torch.rand((10, 50), device="cuda:0")
-            self.fn(cuda_tensor)
+            self.do_tensor_op(cuda_tensor)
             logged = self.log_stream.getvalue().split("\n")[0]
             self.assertIn("CudaTensor[10, 50]", logged)
 
