@@ -164,6 +164,17 @@ class UsageTest(unittest.TestCase):
         key = next(iter(out.keys()))
         self.assertIn(ClassA.__name__, key)
 
+    def test_class_name(self):
+        out = {}
+
+        class ClassA:
+            def __call__(self, x):
+                sleep(x)
+
+        timed(out=out)(ClassA())(0.1)
+        key = next(iter(out.keys()))
+        self.assertTrue(key.endswith("<locals>.ClassA"))
+
     def test_return_time(self):
         seconds = 0.1
 

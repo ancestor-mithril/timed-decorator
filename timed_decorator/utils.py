@@ -167,12 +167,18 @@ def update_timing_dict(out: dict, key: str, elapsed: int, own_time: int):
 def get_fn_name(fn):
     if hasattr(fn, "name"):  # torch.jit.ScriptFunction uses name instead of __name__
         return fn.name
-    return fn.__name__
+    if hasattr(fn, "__name__"):
+        return fn.__name__
+    if hasattr(fn, "__class__"):
+        return fn.__class__.__name__
+    return type(fn).__name__
 
 
 def get_fn_qualname(fn):
-    if hasattr(
-        fn, "qualified_name"
-    ):  # torch.jit.ScriptFunction uses qualified_name instead of __qualname__
+    if hasattr(fn, "qualified_name"):  # torch.jit.ScriptFunction uses qualified_name instead of __qualname__
         return fn.qualified_name
-    return fn.__qualname__
+    if hasattr(fn, "__qualname__"):
+        return fn.__qualname__
+    if hasattr(fn, "__class__"):
+        return fn.__class__.__qualname__
+    return type(fn).__qualname__
