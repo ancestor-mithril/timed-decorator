@@ -93,7 +93,7 @@ def nested_timed(
                 f"own time: {time_formatter(own_time)}"
             )
             if return_time:
-                return ret, elapsed
+                return ret, elapsed / 1e9 if use_seconds else elapsed
             return ret
 
         return wrap

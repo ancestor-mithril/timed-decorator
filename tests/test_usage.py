@@ -187,6 +187,18 @@ class UsageTest(unittest.TestCase):
         self.assertIsInstance(elapsed, int)
         self.assertGreater(elapsed / 1e9, seconds)
 
+    def test_return_time_seconds(self):
+        seconds = 0.1
+
+        @timed(return_time=True, stdout=False, use_seconds=True)
+        def fn(x):
+            sleep(x)
+
+        _, elapsed = fn(seconds)
+
+        self.assertIsInstance(elapsed, float)
+        self.assertGreater(elapsed, seconds)
+
     def test_create_timed_decorator(self):
         create_timed_decorator("same name")
         self.assertRaises(KeyError, create_timed_decorator, "same name")

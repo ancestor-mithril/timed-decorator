@@ -95,7 +95,7 @@ def timed(
                 f"{input_formatter(fn_name, *args, **kwargs)} -> total time: {time_formatter(elapsed)}"
             )
             if return_time:
-                return ret, elapsed
+                return ret, elapsed / 1e9 if use_seconds else elapsed
             return ret
 
         return wrap
