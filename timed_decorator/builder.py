@@ -101,3 +101,35 @@ def get_timed_decorator(name: str):
         return wrap
 
     return decorator
+
+
+def apply_timed_decorator(fn, name: str = None):
+    """
+    Applies a timed decorator to an arbitrary function. This can be used to apply timing decorators to functions
+    from external libraries or any codebase without changing the source code.
+
+    By default, applies the :class:`timed_decorator.simple_timed.timed` decorator with default parameters. If a
+    ``name`` is provided, uses the registered timed decorator with that name (see
+    :class:`timed_decorator.builder.create_timed_decorator`). The named decorator is lazily resolved, meaning it
+    can be registered after applying the decorator but before the first function call.
+
+    Args:
+        fn: The function to be decorated.
+        name (str): The name of a registered timed decorator. If ``None``, applies the default
+            :class:`timed_decorator.simple_timed.timed` decorator. Default: ``None``.
+
+    Returns:
+        The decorated function.
+
+    """
+    if name is not None:
+        @wraps(fn)
+        def wrap(*args, **kwargs):
+            timer, enabled = _get_timed_decorator(name)
+            if enabled:
+                return timer(fn)(*args, **kwargs)
+            return fn(*args, **kwargs)
+
+        return wrap
+
+    return timed()(fn)

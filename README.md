@@ -64,6 +64,11 @@ For more advanced usage, consider registering a timed decorator and using it aft
 
    * `name` (`str`): The name of the timed decorator registered using `timed_decorator.builder.create_timed_decorator`.
 
+5. `apply_timed_decorator` applies a timed decorator to an arbitrary function. This can be used to apply timing decorators to functions from external libraries or any codebase without changing the source code. By default, applies the `timed` decorator with default parameters. If a `name` is provided, uses the registered timed decorator (see `create_timed_decorator`). The named decorator is lazily resolved, meaning it can be registered after the call to `apply_timed_decorator` but before the first function call.
+
+   * `fn`: The function to be decorated.
+   * `name` (`str`): The name of a registered timed decorator. If `None`, applies the default `timed` decorator. Default: `None`.
+
 
 ### Examples
 
@@ -539,4 +544,54 @@ Function main.<locals>.function_1:
 
 Function main:
 
+```
+
+### Applying a timed decorator to arbitrary functions
+
+This can be used to apply timing decorators to functions from external libraries or any codebase without changing the source code.
+
+Using the default `timed` decorator:
+```py
+import numpy as np
+from timed_decorator.builder import apply_timed_decorator
+
+np.random.rand = apply_timed_decorator(np.random.rand)
+
+np.random.rand(100, 100)
+# rand() -> total time: 51100ns
+```
+
+Using a registered timed decorator:
+```py
+import numpy as np
+from timed_decorator.builder import apply_timed_decorator, create_timed_decorator
+
+create_timed_decorator("MyTimer", use_seconds=True, precision=3)
+np.random.randint = apply_timed_decorator(np.random.randint, "MyTimer")
+
+np.random.randint(0, 100, size=(100, 100))
+# randint() -> total time: 0.000s
+```
+
+Multiple functions can be decorated at once:
+```py
+import numpy as np
+from timed_decorator.builder import apply_timed_decorator, create_timed_decorator
+
+my_measurements = {}
+create_timed_decorator("PerfTracker", out=my_measurements, stdout=False)
+
+np.random.rand = apply_timed_decorator(np.random.rand, "PerfTracker")
+np.random.randint = apply_timed_decorator(np.random.randint, "PerfTracker")
+
+np.random.rand(100, 100)
+np.random.randint(0, 100, size=(100, 100))
+
+for key, (counts, elapsed, own_time) in my_measurements.items():
+    print(f'{key}: called {counts} time(s), took {elapsed / 1e+9:.6f}s')
+```
+Prints:
+```
+rand: called 1 time(s), took 0.000051s
+randint: called 1 time(s), took 0.000108s
 ```

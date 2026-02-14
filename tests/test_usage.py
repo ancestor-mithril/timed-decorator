@@ -5,7 +5,7 @@ from io import StringIO
 from time import sleep
 
 from tests.functions import fibonacci, recursive_fibonacci
-from timed_decorator.builder import create_timed_decorator, get_timed_decorator
+from timed_decorator.builder import apply_timed_decorator, create_timed_decorator, get_timed_decorator
 from timed_decorator.nested_timed import nested_timed
 from timed_decorator.simple_timed import timed
 from timed_decorator.utils import build_decorated_fn
@@ -226,6 +226,43 @@ class UsageTest(unittest.TestCase):
 
         self.assertNotIn(fibonacci.__qualname__, out)
         self.assertIn(recursive_fibonacci.__qualname__, out)
+
+    @staticmethod
+    def test_apply_timed_decorator():
+        timed_fibonacci = apply_timed_decorator(fibonacci)
+        timed_fibonacci(100)
+
+        timed_recursive_fibonacci = apply_timed_decorator(recursive_fibonacci)
+        timed_recursive_fibonacci(30)
+
+    def test_apply_timed_decorator_named(self):
+        out = {}
+        create_timed_decorator("apply_named", out=out, stdout=False)
+        timed_fibonacci = apply_timed_decorator(fibonacci, "apply_named")
+        timed_fibonacci(100)
+
+        self.assertIn(fibonacci.__qualname__, out)
+        counts, elapsed, own_time = out[fibonacci.__qualname__]
+        self.assertEqual(counts, 1)
+        self.assertIsInstance(elapsed, int)
+        self.assertEqual(elapsed, own_time)
+
+    def test_apply_timed_decorator_disabled(self):
+        out = {}
+        create_timed_decorator("apply_disabled", enabled=False, out=out, stdout=False)
+        timed_fibonacci = apply_timed_decorator(fibonacci, "apply_disabled")
+        result = timed_fibonacci(100)
+        self.assertEqual(result, fibonacci(100))
+        self.assertNotIn(fibonacci.__qualname__, out)
+
+    def test_apply_timed_decorator_lazy(self):
+        timed_fibonacci = apply_timed_decorator(fibonacci, "apply_lazy")
+        create_timed_decorator("apply_lazy")
+        timed_fibonacci(100)
+
+    def test_apply_timed_decorator_unregistered(self):
+        timed_fibonacci = apply_timed_decorator(fibonacci, "apply_unregistered")
+        self.assertRaises(KeyError, timed_fibonacci, 100)
 
 
 if __name__ == "__main__":
