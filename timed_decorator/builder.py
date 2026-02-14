@@ -43,7 +43,6 @@ def create_timed_decorator(
         :class:`timed_decorator.simple_timed.timed` for the remaining parameters' documentation.
 
     """
-    global _timed_decorators
     if name in _timed_decorators:
         raise KeyError(f"Timed decorator {name} already registered.")
 
@@ -68,7 +67,6 @@ def create_timed_decorator(
 
 
 def _get_timed_decorator(name: str):
-    global _timed_decorators
     if name not in _timed_decorators:
         raise KeyError(
             f"Timed decorator {name} not registered. Please register it first using "

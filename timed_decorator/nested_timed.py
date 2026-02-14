@@ -51,7 +51,7 @@ def nested_timed(
     def decorator(fn):
         @wraps(fn)
         def wrap(*args, **kwargs):
-            global nested_level, nested_times
+            global nested_level
             nested_level += 1
 
             gc_collect()
